@@ -1,4 +1,5 @@
 jdk:
   - oraclejdk8
 language: scala
-script: "sbt publish"
+script: "sbt test"
+after_success: "sbt publish"
