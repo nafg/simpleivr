@@ -1,5 +1,4 @@
 ThisBuild / organization := "io.github.nafg.simpleivr"
-ThisBuild / version := "0.1.0"
 
 lazy val core = project
   .settings(
