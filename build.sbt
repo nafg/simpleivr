@@ -24,6 +24,4 @@ lazy val asterisk = project
     libraryDependencies += "org.asteriskjava" % "asterisk-java" % "2.0.2"
   )
 
-publishArtifact := false
-publish := ()
-publishLocal := ()
+skip in publish := true
