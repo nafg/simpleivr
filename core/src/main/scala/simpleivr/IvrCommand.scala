@@ -5,6 +5,7 @@ import java.io.File
 import scala.language.higherKinds
 
 import cats.Functor
+import cats.effect.IO
 import cats.free.Free
 
 
@@ -36,6 +37,7 @@ object IvrCommand {
     def setAutoHangup(seconds: Int): F[Unit] = default(SetAutoHangup(seconds))
     def say(sayable: Sayable, interruptDigits: String = ""): F[Option[Char]] = default(Say(sayable, interruptDigits))
     def originate(dest: String, script: String, args: Seq[String]): F[Unit] = default(Originate(dest, script, args))
+    def liftIO[A](io: IO[A]): F[A] = default(LiftIO(io))
   }
 
   case class StreamFile(pathAndName: String, interruptChars: String) extends IvrCommand[Char] {
@@ -83,6 +85,9 @@ object IvrCommand {
   }
   case class Originate(dest: String, script: String, args: Seq[String]) extends IvrCommand[Unit] {
     override def fold[F[_]](folder: Folder[F]) = folder.originate(dest, script, args)
+  }
+  case class LiftIO[A](io: IO[A]) extends IvrCommand[A] {
+    override def fold[F[_]](folder: Folder[F]) = folder.liftIO(io)
   }
 }
 

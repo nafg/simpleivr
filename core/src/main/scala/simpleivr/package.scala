@@ -1,6 +1,7 @@
 import java.io.File
 
 import cats.Functor
+import cats.effect.IO
 import cats.free.Free
 
 
@@ -49,6 +50,7 @@ package object simpleivr {
                     setAutoHangupF: IvrCommand.SetAutoHangup => (() => IvrStep[A]) => R = throwMatchErr,
                     sayF: IvrCommand.Say => (Option[Char] => IvrStep[A]) => R = throwMatchErr,
                     originateF: IvrCommand.Originate => (() => IvrStep[A]) => R = throwMatchErr,
+                    liftIOF: IvrCommand.LiftIO[_] => (() => IvrStep[A]) => R = throwMatchErr
                    ): Either[R, A] = runNext(new FoldCmd[A, R] {
       override def streamFile(pathAndName: String, interruptChars: String) =
         streamFileF(IvrCommand.StreamFile(pathAndName, interruptChars))
@@ -65,6 +67,7 @@ package object simpleivr {
       override def setAutoHangup(seconds: Int) = f => setAutoHangupF(IvrCommand.SetAutoHangup(seconds))(() => f(()))
       override def say(sayable: Sayable, interruptDigits: String) = sayF(IvrCommand.Say(sayable, interruptDigits))
       override def originate(dest: String, script: String, args: Seq[String]) = f => originateF(IvrCommand.Originate(dest, script, args))(() => f(()))
+      override def liftIO[T](io: IO[T]): (T => IvrStep[A]) => R = f => liftIOF(IvrCommand.LiftIO(io))(() => f(io.unsafeRunSync()))
     })
   }
 

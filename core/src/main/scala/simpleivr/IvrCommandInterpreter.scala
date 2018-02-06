@@ -93,4 +93,5 @@ class IvrCommandInterpreter(ivrApi: IvrApi, sayables: Sayables) extends IvrComma
   override def originate(dest: String, script: String, args: Seq[String]) = IO {
     ivrApi.originate(dest, script, args)
   }
+  override def liftIO[A](io: IO[A]) = io
 }
