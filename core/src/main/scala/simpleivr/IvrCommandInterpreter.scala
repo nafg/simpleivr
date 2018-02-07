@@ -9,9 +9,9 @@ import cats.effect.IO
 
 class IvrCommandInterpreter(ivrApi: IvrApi) extends IvrCommand.Folder[IO] {
   protected def ensureSpeakFile(speak: Sayables#Speak): IO[Unit] = IO {
-    if (!speak.path.exists()) {
-      println("Falling back to text2wave because audio file does not exist: " + speak.path.supportedAudioFiles)
-      val file = speak.path.wavFile
+    if (!speak.files.exists()) {
+      println("Falling back to text2wave because audio file does not exist: " + speak.files.supportedAudioFiles)
+      val file = speak.files.wavFile
       val text2wave = Runtime.getRuntime.exec("/usr/bin/text2wave -scale 1.5 -F 8000 -o " + file.getAbsolutePath)
       val os = text2wave.getOutputStream
       os.write(speak.msg.getBytes())
