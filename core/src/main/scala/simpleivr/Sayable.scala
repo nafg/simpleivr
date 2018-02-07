@@ -40,7 +40,7 @@ trait Speaks {
     def unapply(s: Speak) = Some(s.msg)
   }
   class Speak private[Speaks](val msg: String) extends Sayable {
-    lazy val path = new AudioPath(ttsDir, msg.replaceAll("\\W", "-").trim.toLowerCase)
+    lazy val path = new AudioPath(ttsDir.getAbsolutePath, msg.replaceAll("\\W", "-").trim.toLowerCase)
     override def toString = s"Speak($msg)"
   }
 
