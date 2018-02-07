@@ -2,28 +2,11 @@ package simpleivr
 
 import java.io.File
 
-import scala.io.Source
-
 import cats.effect.IO
 
 
-class IvrCommandInterpreter(ivrApi: IvrApi) extends IvrCommand.Folder[IO] {
-  protected def ensureSpeakFile(speak: Sayables#Speak): IO[Unit] = IO {
-    if (!speak.files.exists()) {
-      println("Falling back to text2wave because audio file does not exist: " + speak.files.supportedAudioFiles)
-      val file = speak.files.wavFile
-      val text2wave = Runtime.getRuntime.exec("/usr/bin/text2wave -scale 1.5 -F 8000 -o " + file.getAbsolutePath)
-      val os = text2wave.getOutputStream
-      os.write(speak.msg.getBytes())
-      os.flush()
-      os.close()
-      text2wave.waitFor()
-      Source.fromInputStream(text2wave.getInputStream).getLines() foreach println
-      Source.fromInputStream(text2wave.getErrorStream).getLines() foreach println
-      file.setWritable(true, false)
-    }
-  }
-
+class IvrCommandInterpreter(ivrApi: IvrApi, speakGenerator: SpeakGenerator = Text2waveSpeakGenerator)
+  extends IvrCommand.Folder[IO] {
   /**
     * `None` if no DTMF was received, otherwise `Some(d)` where `d` is the
     * digit that was pressed.
@@ -45,7 +28,8 @@ class IvrCommandInterpreter(ivrApi: IvrApi) extends IvrCommand.Folder[IO] {
       }
 
     case speak: Sayables#Speak =>
-      ensureSpeakFile(speak) flatMap { _ =>
+      speakGenerator(speak)
+        .flatMap { _ =>
         println("Speaking: " + speak.msg)
         runSayable(Play(speak.path), interrupt)
       }
