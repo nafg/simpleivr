@@ -1,13 +1,13 @@
 package simpleivr.asterisk
 
 import org.asteriskjava.fastagi._
-import simpleivr.{IvrApi, IvrStep, IvrStepRunner, Sayables}
+import simpleivr.{IvrApi, IvrStep, IvrStepRunner}
 
 
-abstract class DefaultAgiScript(sayables: Sayables, api: IvrApi) extends AgiScript {
+abstract class DefaultAgiScript(api: IvrApi) extends AgiScript {
   def run(request: AgiRequest): IvrStep[Unit]
 
-  def ivrStepRunner(request: AgiRequest) = new IvrStepRunner(api, sayables)
+  def ivrStepRunner(request: AgiRequest) = new IvrStepRunner(api)
 
   override def service(request: AgiRequest, channel: AgiChannel): Unit = {
     channel.answer()

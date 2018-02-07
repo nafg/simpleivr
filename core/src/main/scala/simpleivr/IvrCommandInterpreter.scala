@@ -7,7 +7,7 @@ import scala.io.Source
 import cats.effect.IO
 
 
-class IvrCommandInterpreter(ivrApi: IvrApi, sayables: Sayables) extends IvrCommand.Folder[IO] {
+class IvrCommandInterpreter(ivrApi: IvrApi) extends IvrCommand.Folder[IO] {
   protected def ensureSpeakFile(speak: Sayables#Speak): IO[Unit] = IO {
     if (!speak.path.exists()) {
       println("Falling back to text2wave because audio file does not exist: " + speak.path.supportedAudioFiles)
