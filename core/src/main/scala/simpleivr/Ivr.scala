@@ -29,37 +29,50 @@ class Ivr(sayables: Sayables) {
     }
 
   /**
-    * None means * was pressed, signifying that inputting was canceled
+    * @param handle A function, passed the accumulated previous digits and the latest digit or None if user was silent.
+    *               Should return
+    *               Some(Left(Sayable)) to indicate the input is invalid and should be retried,
+    *               Some(Right(x)) to indicate the input is complete and the value to return,
+    *               or None for input to continue.
     */
-  def sayAndHandleDigits[T](min: Int, max: Int, msgs: Sayable)
-                           (handle: PartialFunction[String, T] = PartialFunction(identity[String])): IvrStep[Option[T]] = {
-    def validate(acc: String): Either[Sayable, T] =
-      if ((min == max) && (acc.length != min))
-        Left(`You must enter ` & numberWords(min) & (if (min == 1) `digit` else `digits`))
-      else if (acc.length < min)
-        Left(`You must enter at least` & numberWords(min) & (if (min == 1) `digit` else `digits`))
-      else if (acc.length > max)
-        Left(`You cannot enter more than` & numberWords(max) & (if (max == 1) `digit` else `digits`))
-      else
-        handle.andThen(Right(_)).applyOrElse(acc, (_: String) => Left(`That entry is not valid`))
+  def sayAndHandle[A](message: Sayable)
+                     (handle: (String, Option[Char]) => Option[Either[Sayable, A]]): IvrStep[A] = {
+    def calcRes(acc: String)(ch: Option[Char]): IvrStep[Either[Sayable, A]] =
+      handle(acc, ch) match {
+        case Some(res) => IvrStep(res)
+        case None      => IvrStep.waitForDigit(5000).flatMap(calcRes(acc + ch.mkString))
+      }
 
-    def calcRes(acc: String = ""): Option[Char] => IvrStep[Either[Sayable, Option[T]]] = {
-      case Some(c) if acc.length + 1 < max && c.isDigit =>
-        IvrStep.waitForDigit(5000).flatMap(calcRes(acc + c))
-      case Some('*')                                    =>
-        IvrStep(Right(None))
-      case x                                            =>
-        val s = acc + x.filter(_ != '#').mkString
-        IvrStep(validate(s).right.map(Option(_)))
-    }
-
-    sayAndGetDigit(msgs)
-      .flatMap(calcRes())
+    sayAndGetDigit(message)
+      .flatMap(calcRes(""))
       .flatMap {
         case Right(x)  => IvrStep(x)
-        case Left(msg) => IvrStep.say(msg) *> sayAndHandleDigits(min, max, msgs)(handle)
+        case Left(msg) => IvrStep.say(msg) *> sayAndHandle(message)(handle)
       }
   }
+
+  /**
+    * None means * was pressed, signifying that inputting was canceled
+    */
+  def sayAndHandleDigits[A](min: Int, max: Int, msgs: Sayable)
+                           (handle: PartialFunction[String, A] = PartialFunction(identity[String])): IvrStep[Option[A]] =
+    sayAndHandle(msgs) {
+      case (_, Some('*'))                                      => Some(Right(None))
+      case (acc, Some(c)) if acc.length + 1 < max && c.isDigit => None
+      case (acc, x)                                            =>
+        def sayDigitOrDigits(n: Int) = numberWords(n) & (if (n == 1) `digit` else `digits`)
+
+        val str = acc + x.filter(_ != '#').mkString
+        val validated =
+          if ((min == max) && (str.length != min)) Left(`You must enter ` & sayDigitOrDigits(min))
+          else if (str.length < min) Left(`You must enter at least` & sayDigitOrDigits(min))
+          else if (str.length > max) Left(`You cannot enter more than` & sayDigitOrDigits(max))
+          else
+            handle
+              .andThen(a => Right(Some(a)))
+              .applyOrElse(str, (_: String) => Left(`That entry is not valid`))
+        Some(validated)
+    }
 
   def askYesNo(msgs: Sayable): IvrStep[Option[Boolean]] =
     sayAndGetDigit(msgs & `Press 1 for yes, or 2 for no.`) flatMap {
