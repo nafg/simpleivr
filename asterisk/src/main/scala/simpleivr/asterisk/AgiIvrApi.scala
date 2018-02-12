@@ -10,7 +10,7 @@ import simpleivr.IvrApi
 /**
   * Implements the IvrApi trait for Asterisk AGI
   */
-class AgiIvrApi(channel: AgiChannel, val ami: Ami) extends IvrApi {
+class AgiIvrApi(channel: AgiChannel, maybeAmi: Option[Ami] = None) extends IvrApi {
   final val HangupReturnCode = -1.toChar
 
   def hangupAndQuit(): Nothing = {
@@ -68,5 +68,8 @@ class AgiIvrApi(channel: AgiChannel, val ami: Ami) extends IvrApi {
     }
 
   override def originate(dest: String, script: String, args: Seq[String]): Unit =
-    ami.originate(dest, script, args)
+    maybeAmi match {
+      case Some(ami) => ami.originate(dest, script, args)
+      case None      => throw new UnsupportedOperationException("AgiIvrApi: No Ami was supplied")
+    }
 }
