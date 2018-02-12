@@ -8,6 +8,12 @@ class Ivr(sayables: Sayables) {
   import sayables._
 
 
+  def loopUntilDefined[A](step: => IvrStep[Option[A]]): IvrStep[A] =
+    step.flatMap {
+      case None    => loopUntilDefined(step)
+      case Some(a) => IvrStep(a)
+    }
+
   def record(desc: Sayable, path: AudioPath, timeLimitInSeconds: Int): IvrStep[Unit] =
     (IvrStep.say(`Please say` & desc & `after the tone, and press pound when finished.`) *>
       IvrStep.recordFile(path.pathAndName, "wav", "#", timeLimitInSeconds * 1000, 0, beep = true, 3))
