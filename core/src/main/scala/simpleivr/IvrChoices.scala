@@ -9,12 +9,12 @@ class IvrChoices(sayables: Sayables) extends Ivr(sayables) {
   import sayables._
 
 
-  case class Choice[+A](key: Option[Char], label: Sayable, action: A) {
-    def map[B](f: A => B): Choice[B] = Choice(key, label, f(action))
+  case class Choice[+A](key: Option[Char], label: Sayable, value: A) {
+    def map[B](f: A => B): Choice[B] = Choice(key, label, f(value))
   }
   object Choice {
-    def apply[A](label: Sayable, action: A): Choice[A] = new Choice(None, label, action)
-    def apply[A](key: Char, label: Sayable, action: A): Choice[A] = new Choice(Some(key), label, action)
+    def apply[A](label: Sayable, value: A): Choice[A] = new Choice(None, label, value)
+    def apply[A](key: Char, label: Sayable, value: A): Choice[A] = new Choice(Some(key), label, value)
   }
 
   def paginated[T](maximum: Int, choices: List[Choice[T]], fixedChoices: List[Choice[T]]): List[Choice[IvrStep[T]]] = {
@@ -88,7 +88,7 @@ class IvrChoices(sayables: Sayables) extends Ivr(sayables) {
       case None    => IvrStep.say(`Please make a selection` & Pause(750)) *> loop
       case Some(c) =>
         menu.find(_.key.contains(c)) match {
-          case Some(choice) => IvrStep(choice.action)
+          case Some(choice) => IvrStep(choice.value)
           case None         => IvrStep.say(`That is not one of the choices.` & Pause(750)) *> loop
         }
     }
