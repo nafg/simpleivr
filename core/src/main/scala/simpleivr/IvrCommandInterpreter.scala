@@ -7,6 +7,25 @@ import cats.effect.IO
 
 class IvrCommandInterpreter(ivrApi: IvrApi, speakGenerator: SpeakGenerator = Text2waveSpeakGenerator)
   extends IvrCommand.Folder[IO] {
+
+  private def curTime = IO(System.currentTimeMillis())
+
+  protected def runPause(ms: Int, interrupt: String): IO[Option[Char]] =
+    if (ms <= 0)
+      IO.pure(None)
+    else if (interrupt.isEmpty)
+      IO(Thread.sleep(ms)).map(_ => None)
+    else
+      for {
+        startTime <- curTime
+        digit <- waitForDigit(ms)
+        res <-
+          if (digit.exists(interrupt.contains(_)))
+            IO.pure(digit)
+          else
+            curTime.map(_ - startTime).flatMap(elapsed => runPause(ms - elapsed.toInt, interrupt))
+      } yield res
+
   /**
     * `None` if no DTMF was received, otherwise `Some(d)` where `d` is the
     * digit that was pressed.
@@ -15,11 +34,7 @@ class IvrCommandInterpreter(ivrApi: IvrApi, speakGenerator: SpeakGenerator = Tex
     case SayNothing =>
       IO.pure(None)
 
-    case Pause(ms) =>
-      if (interrupt.nonEmpty)
-        waitForDigit(ms)
-      else
-        IO(Thread.sleep(ms)).map(_ => None)
+    case Pause(ms) => runPause(ms, interrupt)
 
     case play: Play =>
       streamFile(play.path.pathAndName, interrupt).map {
