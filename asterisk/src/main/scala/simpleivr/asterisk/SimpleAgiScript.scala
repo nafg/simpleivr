@@ -5,24 +5,29 @@ import simpleivr._
 
 
 abstract class SimpleAgiScript(speakGenerator: SpeakGenerator = Text2waveSpeakGenerator) extends AgiScript {
-  protected def makeApi(channel: AgiChannel): IvrApi = new AgiIvrApi(channel)
+  abstract class Handler(request: AgiRequest, channel: AgiChannel) {
+    protected def mkApi: IvrApi = new AgiIvrApi(channel)
+    lazy val api = mkApi
 
-  protected def ivrCommandInterpreter(channel: AgiChannel) = new IvrCommandInterpreter(makeApi(channel), speakGenerator)
+    protected def ivrCommandInterpreter = new IvrCommandInterpreter(api, speakGenerator)
 
-  protected def ivrStepRunner(channel: AgiChannel) = new IvrStepRunner(ivrCommandInterpreter(channel))
+    protected def ivrStepRunner = new IvrStepRunner(ivrCommandInterpreter)
 
-  def run(request: AgiRequest): IvrStep[Unit]
+    def run: IvrStep[Unit]
 
-  override def service(request: AgiRequest, channel: AgiChannel): Unit = {
-    channel.answer()
-    try {
-      val runner = ivrStepRunner(channel)
-      val step = run(request)
-      runner.runIvrStep(step).unsafeRunSync()
-      channel.hangup()
-    } catch {
-      case e: AgiHangupException =>
-        println("Caught hangup")
+    def handle(): Unit = {
+      channel.answer()
+      try {
+        ivrStepRunner.runIvrStep(run).unsafeRunSync()
+        channel.hangup()
+      } catch {
+        case _: AgiHangupException =>
+          println("Caught hangup")
+      }
     }
   }
+
+  def handler(request: AgiRequest, channel: AgiChannel): Handler
+
+  override def service(request: AgiRequest, channel: AgiChannel): Unit = handler(request, channel).handle()
 }

@@ -1,3 +1,4 @@
+ThisBuild / scalaVersion := "2.12.5"
 ThisBuild / organization := "io.github.nafg.simpleivr"
 
 lazy val core = project
@@ -5,8 +6,8 @@ lazy val core = project
     name := "simpleivr-core",
     libraryDependencies ++= Seq(
       "com.lihaoyi" %% "sourcecode" % "0.1.4",
-      "org.typelevel" %% "cats-free" % "1.0.1",
-      "org.typelevel" %% "cats-effect" % "0.8"
+      "org.typelevel" %% "cats-free" % "1.1.0",
+      "org.typelevel" %% "cats-effect" % "0.10"
     )
   )
 
