@@ -30,7 +30,7 @@ class IvrCommandInterpreter(ivrApi: IvrApi, speakGenerator: SpeakGenerator = Tex
     * `None` if no DTMF was received, otherwise `Some(d)` where `d` is the
     * digit that was pressed.
     */
-  final def runSayable(sayable: Sayable, interrupt: String): IO[Option[Char]] = sayable match {
+  def runSayable(sayable: Sayable, interrupt: String): IO[Option[Char]] = sayable match {
     case SayNothing =>
       IO.pure(None)
 
