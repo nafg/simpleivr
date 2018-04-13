@@ -5,7 +5,7 @@ import java.io.File
 import cats.effect.IO
 
 
-class IvrCommandInterpreter(ivrApi: IvrApi, val speakGenerator: SpeakGenerator = Text2waveSpeakGenerator)
+class DefaultIvrCommandInterpreter(ivrApi: IvrApi, val speakGenerator: SpeakGenerator = Text2waveSpeakGenerator)
   extends SayIvrCommandInterpreter {
 
   override def streamFile(pathAndName: String, interruptChars: String) = IO {

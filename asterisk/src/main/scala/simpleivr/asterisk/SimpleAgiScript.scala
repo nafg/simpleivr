@@ -9,7 +9,7 @@ abstract class SimpleAgiScript(speakGenerator: SpeakGenerator = Text2waveSpeakGe
     protected def mkApi: IvrApi = new AgiIvrApi(channel)
     lazy val api = mkApi
 
-    protected def ivrCommandInterpreter = new IvrCommandInterpreter(api, speakGenerator)
+    protected def ivrCommandInterpreter = new DefaultIvrCommandInterpreter(api, speakGenerator)
 
     protected def ivrStepRunner = new IvrStepRunner(ivrCommandInterpreter)
 
