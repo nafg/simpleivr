@@ -10,7 +10,7 @@ import cats.free.Free
 
 
 sealed trait IvrCommand[A] extends Product {
-  def fold[F[_]](folder: IvrCommand.Folder[F]): F[A]
+  def fold[F[_]](folder: IvrCommand.Interpreter[F]): F[A]
 
   object functor extends IvrCommandF[A] {
     override type Intermediate = A
@@ -22,7 +22,7 @@ sealed trait IvrCommand[A] extends Product {
 }
 
 object IvrCommand {
-  class Folder[F[_]] {
+  class Interpreter[F[_]] {
     def default[T]: IvrCommand[T] => F[T] = (cmd: IvrCommand[T]) => throw new MatchError(cmd)
     def streamFile(pathAndName: String, interruptChars: String): F[Char] = default(StreamFile(pathAndName, interruptChars))
     def recordFile(pathAndName: String, format: String, interruptChars: String, timeLimitMillis: Int, offset: Int, beep: Boolean, maxSilenceSecs: Int): F[Char] = default(RecordFile(pathAndName, format, interruptChars, timeLimitMillis, offset, beep, maxSilenceSecs))
@@ -41,7 +41,7 @@ object IvrCommand {
   }
 
   case class StreamFile(pathAndName: String, interruptChars: String) extends IvrCommand[Char] {
-    override def fold[F[_]](folder: Folder[F]) = folder.streamFile(pathAndName, interruptChars)
+    override def fold[F[_]](folder: Interpreter[F]) = folder.streamFile(pathAndName, interruptChars)
   }
   case class RecordFile(pathAndName: String,
                         format: String,
@@ -50,44 +50,44 @@ object IvrCommand {
                         offset: Int,
                         beep: Boolean,
                         maxSilenceSecs: Int) extends IvrCommand[Char] {
-    override def fold[F[_]](folder: Folder[F]) =
+    override def fold[F[_]](folder: Interpreter[F]) =
       folder.recordFile(pathAndName, format, interruptChars, timeLimitMillis, offset, beep, maxSilenceSecs)
   }
   case class WaitForDigit(timeout: Int) extends IvrCommand[Option[Char]] {
-    override def fold[F[_]](folder: Folder[F]) = folder.waitForDigit(timeout)
+    override def fold[F[_]](folder: Interpreter[F]) = folder.waitForDigit(timeout)
   }
   case class Dial(to: String, ringTimeout: Int, flags: String) extends IvrCommand[Int] {
-    override def fold[F[_]](folder: Folder[F]) = folder.dial(to, ringTimeout, flags)
+    override def fold[F[_]](folder: Interpreter[F]) = folder.dial(to, ringTimeout, flags)
   }
   case object Amd extends IvrCommand[Int] {
-    override def fold[F[_]](folder: Folder[F]) = folder.amd
+    override def fold[F[_]](folder: Interpreter[F]) = folder.amd
   }
   case class GetVar(name: String) extends IvrCommand[Option[String]] {
-    override def fold[F[_]](folder: Folder[F]) = folder.getVar(name)
+    override def fold[F[_]](folder: Interpreter[F]) = folder.getVar(name)
   }
   case object CallerId extends IvrCommand[String] {
-    override def fold[F[_]](folder: Folder[F]) = folder.callerId
+    override def fold[F[_]](folder: Interpreter[F]) = folder.callerId
   }
   case class WaitForSilence(ms: Int, repeat: Int = 1, timeoutSec: Option[Int] = None) extends IvrCommand[Unit] {
-    override def fold[F[_]](folder: Folder[F]) = folder.waitForSilence(ms, repeat, timeoutSec)
+    override def fold[F[_]](folder: Interpreter[F]) = folder.waitForSilence(ms, repeat, timeoutSec)
   }
   case class Monitor(file: File) extends IvrCommand[Unit] {
-    override def fold[F[_]](folder: Folder[F]) = folder.monitor(file)
+    override def fold[F[_]](folder: Interpreter[F]) = folder.monitor(file)
   }
   case object Hangup extends IvrCommand[Unit] {
-    override def fold[F[_]](folder: Folder[F]) = folder.hangup
+    override def fold[F[_]](folder: Interpreter[F]) = folder.hangup
   }
   case class SetAutoHangup(seconds: Int) extends IvrCommand[Unit] {
-    override def fold[F[_]](folder: Folder[F]) = folder.setAutoHangup(seconds)
+    override def fold[F[_]](folder: Interpreter[F]) = folder.setAutoHangup(seconds)
   }
   case class Say(sayable: Sayable, interruptDigits: String = "") extends IvrCommand[Option[Char]] {
-    override def fold[F[_]](folder: Folder[F]) = folder.say(sayable, interruptDigits)
+    override def fold[F[_]](folder: Interpreter[F]) = folder.say(sayable, interruptDigits)
   }
   case class Originate(dest: String, script: String, args: Seq[String]) extends IvrCommand[Unit] {
-    override def fold[F[_]](folder: Folder[F]) = folder.originate(dest, script, args)
+    override def fold[F[_]](folder: Interpreter[F]) = folder.originate(dest, script, args)
   }
   case class LiftIO[A](io: IO[A]) extends IvrCommand[A] {
-    override def fold[F[_]](folder: Folder[F]) = folder.liftIO(io)
+    override def fold[F[_]](folder: Interpreter[F]) = folder.liftIO(io)
   }
 }
 
@@ -101,7 +101,7 @@ trait IvrCommandF[A] {
     def apply = (i: Intermediate) => g(IvrCommandF.this.apply(i))
   }
 
-  def fold[F[_]](folder: IvrCommand.Folder[F])(implicit functor: Functor[F]): F[A] =
+  def fold[F[_]](folder: IvrCommand.Interpreter[F])(implicit functor: Functor[F]): F[A] =
     functor.map[Intermediate, A](ivrCommand.fold[F](folder))(apply)
 }
 object IvrCommandF {

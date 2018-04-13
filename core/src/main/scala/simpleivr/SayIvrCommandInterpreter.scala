@@ -3,7 +3,7 @@ package simpleivr
 import cats.effect.IO
 
 
-trait SayIvrCommandInterpreter extends IvrCommand.Folder[IO] {
+trait SayIvrCommandInterpreter extends IvrCommand.Interpreter[IO] {
   def speakGenerator: SpeakGenerator
 
   private def curTime = IO(System.currentTimeMillis())
