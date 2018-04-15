@@ -18,12 +18,25 @@ sealed trait Sayable {
     case single: Sayable.Single => Seq(single)
     case Sayable.Seq(sayables)  => sayables.flatMap(_.toSingles)
   }
+  override def toString =
+    toSingles
+      .collect {
+        case speak: Speaks#Speak          => speak.msg
+        case Pause(_)                     => "..."
+        case Play(AudioPath(pathAndName)) => s"[$pathAndName]"
+      }
+      .mkString(" ")
 }
 object Sayable {
   sealed trait Single extends Sayable
   case class Seq(sayables: scala.Seq[Sayable]) extends Sayable
 
   val Empty: Sayable = Seq(Nil)
+
+  def unapplySeq(sayable: Sayable): Option[scala.Seq[Any]] = Some(sayable.toSingles.map {
+    case speak: Speaks#Speak => speak.msg
+    case s                   => s
+  })
 }
 
 case class Pause(ms: Int) extends Sayable.Single
