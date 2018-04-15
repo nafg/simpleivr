@@ -47,7 +47,7 @@ trait SayIvrCommandInterpreter extends IvrCommand.Interpreter[IO] {
           runSayable(Play(speak.path), interrupt)
         }
 
-    case SayableSeq(messages) =>
+    case Sayable.Seq(messages) =>
       def loop(sayables: List[Sayable]): IO[Option[Char]] = sayables match {
         case Nil         => IO.pure(None)
         case msg :: msgs =>

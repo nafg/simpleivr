@@ -7,25 +7,30 @@ import sourcecode.Name
 
 sealed trait Sayable {
   final def &(that: Sayable) = (this, that) match {
-    case (SayNothing, _)                        => that
-    case (_, SayNothing)                        => this
-    case (SayableSeq(msgs1), SayableSeq(msgs2)) => SayableSeq(msgs1 ++ msgs2)
-    case (SayableSeq(msgs1), msg2)              => SayableSeq(msgs1 :+ msg2)
-    case (msg1, SayableSeq(msgs2))              => SayableSeq(msg1 +: msgs2)
-    case (msg1, msg2)                           => SayableSeq(List(msg1, msg2))
+    case (SayNothing, _)                          => that
+    case (_, SayNothing)                          => this
+    case (Sayable.Seq(msgs1), Sayable.Seq(msgs2)) => Sayable.Seq(msgs1 ++ msgs2)
+    case (Sayable.Seq(msgs1), msg2)               => Sayable.Seq(msgs1 :+ msg2)
+    case (msg1, Sayable.Seq(msgs2))               => Sayable.Seq(msg1 +: msgs2)
+    case (msg1, msg2)                             => Sayable.Seq(List(msg1, msg2))
+  }
+  final def toSingles: Seq[Sayable.Single] = this match {
+    case single: Sayable.Single => Seq(single)
+    case Sayable.Seq(sayables)  => sayables.flatMap(_.toSingles)
   }
 }
 object Sayable {
-  implicit def fromSeqSayable(s: Seq[Sayable]): Sayable = SayableSeq(s.toList)
+  case class Seq(sayables: List[Sayable]) extends Sayable
+  sealed trait Single extends Sayable
+
+  implicit def fromSeqSayable(s: scala.Seq[Sayable]): Sayable = Sayable.Seq(s.toList)
 }
 
-object SayNothing extends Sayable
+object SayNothing extends Sayable.Single
 
-case class Pause(ms: Int) extends Sayable
+case class Pause(ms: Int) extends Sayable.Single
 
-case class SayableSeq(messages: List[Sayable]) extends Sayable
-
-case class Play(path: AudioPath) extends Sayable
+case class Play(path: AudioPath) extends Sayable.Single
 object Play {
   def ifExists(files: AudioFiles, path: AudioPath): Option[Play] =
     if (files.exists()) Some(Play(path))
@@ -39,7 +44,7 @@ trait Speaks {
   object Speak {
     def unapply(s: Speak) = Some(s.msg)
   }
-  class Speak private[Speaks](val msg: String) extends Sayable {
+  class Speak private[Speaks](val msg: String) extends Sayable.Single {
     lazy val filename = msg.replaceAll("\\W", "-").trim.toLowerCase
     lazy val path = AudioPath(base.path, filename)
     lazy val files = AudioFiles(base.localDir, filename)

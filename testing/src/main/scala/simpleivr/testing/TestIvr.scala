@@ -1,19 +1,13 @@
 package simpleivr.testing
 
-import simpleivr.{IvrChoices, Pause, Sayable, SayableSeq, Sayables}
+import simpleivr.{IvrChoices, Pause, Sayable, Sayables}
 
 
 class TestIvr(sayables: Sayables) extends IvrChoices(sayables) {
   object Sayables {
-    private def flatten(msgs: Seq[Sayable]): Seq[Sayable] = msgs.flatMap {
-      case s: SayableSeq => flatten(s.messages)
-      case s             => List(s)
-    }
-
-    def unapplySeq(sayable: Sayable): Option[Seq[Any]] = Some(sayable match {
-      case s: SayableSeq       => flatten(s.messages) flatMap (x => unapplySeq(x).toList.flatten)
-      case sayables.Speak(msg) => List(msg)
-      case s                   => List(s)
+    def unapplySeq(sayable: Sayable): Option[Seq[Any]] = Some(sayable.toSingles.map {
+      case sayables.Speak(msg) => msg
+      case s                   => s
     })
   }
 
