@@ -54,7 +54,7 @@ trait SayIvrCommandInterpreter extends IvrCommand.Interpreter[IO] {
           }
       }
 
-      loop(messages)
+      loop(messages.toList)
   }
 
   override def say(sayable: Sayable, interruptDigits: String) = runSayable(sayable, interruptDigits)

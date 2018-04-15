@@ -21,11 +21,9 @@ sealed trait Sayable {
 }
 object Sayable {
   sealed trait Single extends Sayable
-  case class Seq(sayables: List[Sayable]) extends Sayable
+  case class Seq(sayables: scala.Seq[Sayable]) extends Sayable
 
   val Empty: Sayable = Seq(Nil)
-
-  implicit def fromSeqSayable(s: scala.Seq[Sayable]): Sayable = Sayable.Seq(s.toList)
 }
 
 case class Pause(ms: Int) extends Sayable.Single

@@ -101,7 +101,7 @@ abstract class Sayables(val base: AudioBase) extends Speaks {
     }
   }
 
-  def digitWords(s: String) = s.toSeq.map(c => numberWords(c - '0'))
+  def digitWords(s: String): Sayable = Sayable.Seq(s.toSeq.map(c => numberWords(c - '0')))
 
   def charWord(c: Char): Sayable = c match {
     case '#'                             => `pound`
