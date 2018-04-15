@@ -1,15 +1,19 @@
 package simpleivr.asterisk
 
+import cats.effect.IO
 import org.asteriskjava.fastagi._
 import simpleivr._
 
 
-abstract class SimpleAgiScript(speakGenerator: SpeakGenerator = Text2waveSpeakGenerator) extends AgiScript {
-  abstract class Handler(request: AgiRequest, channel: AgiChannel) {
-    protected def mkApi: IvrApi = new AgiIvrApi(channel)
-    lazy val api = mkApi
+abstract class SimpleAgiScript(val speakGenerator: SpeakGenerator = Text2waveSpeakGenerator) extends AgiScript {
+  abstract class Handler(val request: AgiRequest, val channel: AgiChannel) {
+    trait DefaultIvrCommandInterpreter extends SayIvrCommandInterpreter with AgiIvrCommandInterpreter {
+      val speakGenerator: SpeakGenerator = SimpleAgiScript.this.speakGenerator
+      val channel = Handler.this.channel
+    }
 
-    protected def ivrCommandInterpreter = new DefaultIvrCommandInterpreter(api, speakGenerator)
+    protected lazy val ivrCommandInterpreter: IvrCommand.Interpreter[IO] =
+      new DefaultIvrCommandInterpreter {}
 
     protected def ivrStepRunner = new IvrStepRunner(ivrCommandInterpreter)
 
