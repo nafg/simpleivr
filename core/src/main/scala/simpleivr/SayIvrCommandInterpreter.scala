@@ -29,9 +29,6 @@ trait SayIvrCommandInterpreter extends IvrCommand.Interpreter[IO] {
     * digit that was pressed.
     */
   def runSayable(sayable: Sayable, interrupt: String): IO[Option[Char]] = sayable match {
-    case SayNothing =>
-      IO.pure(None)
-
     case Pause(ms) => runPause(ms, interrupt)
 
     case play: Play =>

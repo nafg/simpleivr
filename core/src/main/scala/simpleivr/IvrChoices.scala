@@ -22,7 +22,7 @@ class IvrChoices(sayables: Sayables) extends Ivr(sayables) {
       def askNextPage: IvrStep[T] = Free.defer {
         val (p, r) = rest.splitAt(7)
         val b = page ::: back
-        askChoice(ChoiceMenu(SayNothing, doPage(p, r, b))).flatten
+        askChoice(ChoiceMenu(Sayable.Empty, doPage(p, r, b))).flatten
       }
 
       def askPrevPage: IvrStep[T] = Free.defer {
@@ -30,11 +30,11 @@ class IvrChoices(sayables: Sayables) extends Ivr(sayables) {
           val num = if (back.length <= 8) back.length else 7
           val (page2, back2) = back.splitAt(num)
           val rest2 = page ::: rest
-          askChoice(ChoiceMenu(SayNothing, doPage(page2, rest2, back2))).flatten
+          askChoice(ChoiceMenu(Sayable.Empty, doPage(page2, rest2, back2))).flatten
         } else {
           val (page2, rest2) = choices.splitAt(maximum - 1)
           val back2 = Nil
-          askChoice(ChoiceMenu(SayNothing, doPage(page2, rest2, back2))).flatten
+          askChoice(ChoiceMenu(Sayable.Empty, doPage(page2, rest2, back2))).flatten
         }
       }
 

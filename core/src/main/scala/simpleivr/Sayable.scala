@@ -7,8 +7,8 @@ import sourcecode.Name
 
 sealed trait Sayable {
   final def &(that: Sayable) = (this, that) match {
-    case (SayNothing, _)                          => that
-    case (_, SayNothing)                          => this
+    case (Sayable.Empty, _)                       => that
+    case (_, Sayable.Empty)                       => this
     case (Sayable.Seq(msgs1), Sayable.Seq(msgs2)) => Sayable.Seq(msgs1 ++ msgs2)
     case (Sayable.Seq(msgs1), msg2)               => Sayable.Seq(msgs1 :+ msg2)
     case (msg1, Sayable.Seq(msgs2))               => Sayable.Seq(msg1 +: msgs2)
@@ -20,13 +20,13 @@ sealed trait Sayable {
   }
 }
 object Sayable {
-  case class Seq(sayables: List[Sayable]) extends Sayable
   sealed trait Single extends Sayable
+  case class Seq(sayables: List[Sayable]) extends Sayable
+
+  val Empty: Sayable = Seq(Nil)
 
   implicit def fromSeqSayable(s: scala.Seq[Sayable]): Sayable = Sayable.Seq(s.toList)
 }
-
-object SayNothing extends Sayable.Single
 
 case class Pause(ms: Int) extends Sayable.Single
 

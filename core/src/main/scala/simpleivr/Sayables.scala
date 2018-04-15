@@ -62,9 +62,9 @@ abstract class Sayables(val base: AudioBase) extends Speaks {
     )
 
     // Scale number names for use during recombination
-    val scaleNumbers = List(SayNothing, `thousand`, `million`)
+    val scaleNumbers = List(Sayable.Empty, `thousand`, `million`)
 
-    def ifs(cond: Boolean)(s: => Sayable) = if (cond) s else SayNothing
+    def ifs(cond: Boolean)(s: => Sayable) = if (cond) s else Sayable.Empty
 
     if (number == 0) `zero` else {
       @annotation.tailrec def split(num: Int)(agg: List[Int]): List[Int] =
@@ -88,11 +88,12 @@ abstract class Sayables(val base: AudioBase) extends Speaks {
 
       def render(groups: List[(Int, Sayable)], scales: List[Sayable], first: Boolean): Sayable = groups match {
         case Nil                 =>
-          SayNothing
+          Sayable.Empty
         case (num, text) :: rest =>
           val next = render(rest, scales.tail, first = false)
           val cur = ifs(num > 0)(text & scales.head)
-          val sep = ifs(SayNothing != next && SayNothing != cur)(Pause(250) & ifs(first && num > 0 && num < 100)(`and`))
+          val sep =
+            ifs(Sayable.Empty != next && Sayable.Empty != cur)(Pause(250) & ifs(first && num > 0 && num < 100)(`and`))
           next & sep & cur
       }
 
@@ -111,7 +112,7 @@ abstract class Sayables(val base: AudioBase) extends Speaks {
 
   def timeWords(time: LocalTime) =
     numberWords((time.getHour + 11) % 12 + 1) &
-      (if (time.getMinute < 10) `O` else SayNothing) &
+      (if (time.getMinute < 10) `O` else Sayable.Empty) &
       (if (time.getMinute == 0) `clock` else numberWords(time.getMinute)) &
       (if (time.getHour < 12) `A` else `P`) & `M`
 }
