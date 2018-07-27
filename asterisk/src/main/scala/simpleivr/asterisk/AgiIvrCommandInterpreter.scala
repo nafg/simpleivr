@@ -1,6 +1,7 @@
 package simpleivr.asterisk
 
 import java.io.File
+import java.nio.file.Paths
 
 import cats.effect.IO
 import cats.implicits._
@@ -52,6 +53,7 @@ trait AgiIvrCommandInterpreter extends IOIvrCommandInterpreter {
   }
 
   override def monitor(file: File) = IO {
+    channel.exec("System", s"mkdir -p ${file.getParentFile.getAbsolutePath}")
     channel.exec("MixMonitor", file.getAbsolutePath)
   }
 
@@ -66,6 +68,8 @@ trait AgiIvrCommandInterpreter extends IOIvrCommandInterpreter {
                           offset: Int,
                           beep: Boolean,
                           maxSilenceSecs: Int) = IO {
+    val parent = Paths.get(pathAndName).getParent.toString
+    channel.exec("System", s"mkdir -p $parent")
     channel.recordFile(pathAndName, format, interruptChars, timeLimitMillis, offset, beep, maxSilenceSecs)
   }
 
