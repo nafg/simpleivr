@@ -18,6 +18,7 @@ case class AudioFiles(parent: File, name: String) {
 
   lazy val wavFile = supportedAudioFiles("wav")
   lazy val slnFile = supportedAudioFiles("sln")
+  lazy val ulawFile = supportedAudioFiles("ulaw")
 
   def existingFiles() = supportedAudioFiles.filter(_._2.exists())
 
