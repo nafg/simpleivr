@@ -1,6 +1,9 @@
 package simpleivr
 
-import java.io.File
+import java.nio.file.Files
 
 
-object DummySayables extends Sayables(AudioBase(File.createTempFile("simpleivr_DummySayables", "")))
+object DummySayables extends Sayables({
+  val dir = Files.createTempDirectory("simpleivr_DummySayables")
+  new LocalAudioFileBackend(dir, dir.toString)
+})

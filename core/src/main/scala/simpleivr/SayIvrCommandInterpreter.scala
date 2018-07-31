@@ -41,7 +41,8 @@ trait SayIvrCommandInterpreter extends IvrCommand.Interpreter[IO] {
       speakGenerator(speak)
         .flatMap { _ =>
           println("Speaking: " + speak.msg)
-          runSayable(Play(speak.path), interrupt)
+          speak.backend.speakPath(speak)
+            .flatMap(path => runSayable(Play(path), interrupt))
         }
 
     case Sayable.Seq(messages) =>

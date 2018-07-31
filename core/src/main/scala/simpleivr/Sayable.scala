@@ -2,6 +2,7 @@ package simpleivr
 
 import scala.language.implicitConversions
 
+import cats.effect.IO
 import sourcecode.Name
 
 
@@ -43,22 +44,24 @@ case class Pause(ms: Int) extends Sayable.Single
 
 case class Play(path: AudioPath) extends Sayable.Single
 object Play {
-  def ifExists(files: AudioFiles, path: AudioPath): Option[Play] =
-    if (files.exists()) Some(Play(path))
-    else None
+  def ifExists(files: AudioFiles, path: AudioPath): IO[Option[Play]] =
+    files.exists.map {
+      case true  => Some(Play(path))
+      case false => None
+    }
 }
 
 trait Speaks {
-  def base: AudioBase
+  def audioFileBackend: AudioFileBackend
 
   protected def Speak(msg: String) = new Speak(msg)
   object Speak {
     def unapply(s: Speak) = Some(s.msg)
   }
   class Speak private[Speaks](val msg: String) extends Sayable.Single {
-    lazy val filename = msg.replaceAll("\\W", "-").trim.toLowerCase
-    lazy val path = AudioPath(base.path, filename)
-    lazy val files = AudioFiles(base.localDir, filename)
+    def backend: AudioFileBackend = Speaks.this.audioFileBackend
+    def files = backend.speakFiles(this)
+    def path = backend.speakPath(this)
     override def toString = s"Speak($msg)"
   }
 

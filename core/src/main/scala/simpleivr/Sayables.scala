@@ -3,7 +3,7 @@ package simpleivr
 import java.time.LocalTime
 
 
-abstract class Sayables(val base: AudioBase) extends Speaks {
+abstract class Sayables(val audioFileBackend: AudioFileBackend) extends Speaks {
   lazy val
     `An error occurred.`,
     `Please say`,
