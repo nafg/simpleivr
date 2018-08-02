@@ -2,6 +2,8 @@ import cats.free.Free
 
 
 package object simpleivr {
+  type DTMF = DTMF.Value
+
   type IvrStep[A] = Free[IvrCommandF, A]
 
   object IvrStep extends IvrCommand.Interpreter[IvrStep] {

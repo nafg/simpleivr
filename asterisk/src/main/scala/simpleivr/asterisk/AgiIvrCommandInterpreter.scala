@@ -6,7 +6,7 @@ import java.nio.file.Paths
 import cats.effect.IO
 import cats.implicits._
 import org.asteriskjava.fastagi.{AgiChannel, AgiHangupException}
-import simpleivr.IOIvrCommandInterpreter
+import simpleivr.{DTMF, IOIvrCommandInterpreter}
 
 
 /**
@@ -37,13 +37,13 @@ trait AgiIvrCommandInterpreter extends IOIvrCommandInterpreter {
     channel.getFullVariable("$" + "{CALLERID(num)}")
   }
 
-  override def waitForDigit(timeout: Int): IO[Option[Char]] =
+  override def waitForDigit(timeout: Int): IO[Option[DTMF]] =
     IO {
       channel.waitForDigit(timeout)
     }
       .flatMap {
         case HangupReturnCode => hangupAndQuit
-        case c: Char if c > 0 => IO.pure(Some(c))
+        case c: Char if c > 0 => IO.pure(Some(DTMF.fromChar(c)))
         case _                => IO.pure(None)
       }
 
@@ -63,27 +63,30 @@ trait AgiIvrCommandInterpreter extends IOIvrCommandInterpreter {
 
   override def recordFile(pathAndName: String,
                           format: String,
-                          interruptChars: String,
+                          interruptDtmfs: Set[DTMF],
                           timeLimitMillis: Int,
                           offset: Int,
                           beep: Boolean,
                           maxSilenceSecs: Int) = IO {
     val parent = Paths.get(pathAndName).getParent.toString
     channel.exec("System", s"mkdir -p $parent")
-    channel.recordFile(pathAndName, format, interruptChars, timeLimitMillis, offset, beep, maxSilenceSecs)
+    val ch =
+      channel.recordFile(pathAndName, format, interruptDtmfs.mkString, timeLimitMillis, offset, beep, maxSilenceSecs)
+    DTMF.fromChar.get(ch)
   }
 
   override def setAutoHangup(seconds: Int): IO[Unit] = IO {
     channel.setAutoHangup(seconds)
   }
 
-  override def streamFile(pathAndName: String, interruptChars: String) =
+  override def streamFile(pathAndName: String, interruptDtmfs: Set[DTMF]) =
     IO {
-      channel.streamFile(pathAndName, interruptChars)
+      channel.streamFile(pathAndName, interruptDtmfs.mkString)
     }
       .flatMap {
         case HangupReturnCode => hangupAndQuit
-        case c                => IO.pure(c)
+        case 0                => IO.pure(None)
+        case c                => IO.pure(Some(DTMF.fromChar(c)))
       }
 }
 

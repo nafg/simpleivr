@@ -14,8 +14,8 @@ class IvrTests extends FunSuite with Matchers with InteractionTest {
 
   test("sayAndGetDigit") {
     sayAndGetDigit(Sayable.Empty).runWith()(Interactions) shouldBe None
-    sayAndGetDigit(Sayable.Empty).runWith()(Interactions.press("").press("1")) shouldBe Some('1')
-    sayAndGetDigit(Sayable.Empty).runWith()(Interactions.press("2")) shouldBe Some('2')
+    sayAndGetDigit(Sayable.Empty).runWith()(Interactions.press("").press("1")) shouldBe Some(DTMF.`1`)
+    sayAndGetDigit(Sayable.Empty).runWith()(Interactions.press("2")) shouldBe Some(DTMF.`2`)
   }
 
   test("sayAndHandleDigits") {

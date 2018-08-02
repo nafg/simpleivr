@@ -16,14 +16,14 @@ class Ivr(sayables: Sayables) {
 
   def record(desc: Sayable, path: AudioPath, timeLimitInSeconds: Int): IvrStep[Unit] =
     (IvrStep.say(`Please say` & desc & `after the tone, and press pound when finished.`) *>
-      IvrStep.recordFile(path.pathAndName, "wav", "#", timeLimitInSeconds * 1000, 0, beep = true, 3))
+      IvrStep.recordFile(path.pathAndName, "wav", Set(DTMF.`#`), timeLimitInSeconds * 1000, 0, beep = true, 3))
       .void
 
   def confirmRecording(desc: Sayable, file: Sayable): IvrStep[Option[Boolean]] =
     askYesNo(desc & `is` & file & `Is that correct?`)
 
-  def sayAndGetDigit(msgs: Sayable, wait: Int = 5000): IvrStep[Option[Char]] =
-    IvrStep.say(msgs, "0123456789#*").flatMap {
+  def sayAndGetDigit(msgs: Sayable, wait: Int = 5000): IvrStep[Option[DTMF]] =
+    IvrStep.say(msgs, DTMF.values).flatMap {
       case Some(c) => IvrStep(Some(c))
       case None    => IvrStep.waitForDigit(wait)
     }
@@ -36,8 +36,8 @@ class Ivr(sayables: Sayables) {
     *               or None for input to continue.
     */
   def sayAndHandle[A](message: Sayable)
-                     (handle: (String, Option[Char]) => Option[Either[Sayable, A]]): IvrStep[A] = {
-    def calcRes(acc: String)(ch: Option[Char]): IvrStep[Either[Sayable, A]] =
+                     (handle: (String, Option[DTMF]) => Option[Either[Sayable, A]]): IvrStep[A] = {
+    def calcRes(acc: String)(ch: Option[DTMF]): IvrStep[Either[Sayable, A]] =
       handle(acc, ch) match {
         case Some(res) => IvrStep(res)
         case None      => IvrStep.waitForDigit(5000).flatMap(calcRes(acc + ch.mkString))
@@ -57,7 +57,7 @@ class Ivr(sayables: Sayables) {
   def sayAndHandleDigits[A](min: Int, max: Int, msgs: Sayable)
                            (handle: PartialFunction[String, A] = PartialFunction(identity[String])): IvrStep[Option[A]] =
     sayAndHandle(msgs) {
-      case (_, Some('*'))                                      => Some(Right(None))
+      case (_, Some(DTMF.*))                                   => Some(Right(None))
       case (acc, Some(c)) if acc.length + 1 < max && c.isDigit => None
       case (acc, x)                                            =>
         def sayDigitOrDigits(n: Int) = numberWords(n) & (if (n == 1) `digit` else `digits`)
@@ -76,10 +76,10 @@ class Ivr(sayables: Sayables) {
 
   def askYesNo(msgs: Sayable): IvrStep[Option[Boolean]] =
     sayAndGetDigit(msgs & `Press 1 for yes, or 2 for no.`) flatMap {
-      case Some('1') => IvrStep(Some(true))
-      case Some('2') => IvrStep(Some(false))
-      case Some('*') => IvrStep(None)
-      case None      => IvrStep.say(`Please make a selection`) *> askYesNo(msgs)
-      case _         => IvrStep.say(`That is not one of the choices.`) *> askYesNo(msgs)
+      case Some(DTMF.`1`) => IvrStep(Some(true))
+      case Some(DTMF.`2`) => IvrStep(Some(false))
+      case Some(DTMF.*)   => IvrStep(None)
+      case None           => IvrStep.say(`Please make a selection`) *> askYesNo(msgs)
+      case _              => IvrStep.say(`That is not one of the choices.`) *> askYesNo(msgs)
     }
 }

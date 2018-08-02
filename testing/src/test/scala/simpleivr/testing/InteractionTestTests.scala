@@ -20,6 +20,6 @@ class InteractionTestTests extends FunSuite with Matchers with InteractionTest {
 
   test("Simple interactive computation") {
     val expects2 = IvrStep.waitForDigit(1) *> IvrStep.waitForDigit(2)
-    expects2.runWith()(Interactions.press("1").press("2")) shouldBe Some('2')
+    expects2.runWith()(Interactions.press("1").press("2")) shouldBe Some(DTMF.`2`)
   }
 }

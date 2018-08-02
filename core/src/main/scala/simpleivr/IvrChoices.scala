@@ -9,12 +9,12 @@ class IvrChoices(sayables: Sayables) extends Ivr(sayables) {
   import sayables._
 
 
-  case class Choice[+A](key: Option[Char], label: Sayable, value: A) {
+  case class Choice[+A](key: Option[DTMF], label: Sayable, value: A) {
     def map[B](f: A => B): Choice[B] = Choice(key, label, f(value))
   }
   object Choice {
     def apply[A](label: Sayable, value: A): Choice[A] = new Choice(None, label, value)
-    def apply[A](key: Char, label: Sayable, value: A): Choice[A] = new Choice(Some(key), label, value)
+    def apply[A](key: DTMF, label: Sayable, value: A): Choice[A] = new Choice(Some(key), label, value)
   }
 
   def paginated[T](maximum: Int, choices: List[Choice[T]], fixedChoices: List[Choice[T]]): List[Choice[IvrStep[T]]] = {
@@ -39,8 +39,8 @@ class IvrChoices(sayables: Sayables) extends Ivr(sayables) {
       }
 
       page.map(_ map IvrStep.apply) ++
-        List(Choice('8', `For more choices`, askNextPage)).filter(_ => rest.nonEmpty) ++
-        List(Choice('9', `For the previous choices`, askPrevPage)).filter(_ => back.nonEmpty) ++
+        List(Choice(DTMF.`8`, `For more choices`, askNextPage)).filter(_ => rest.nonEmpty) ++
+        List(Choice(DTMF.`9`, `For the previous choices`, askPrevPage)).filter(_ => back.nonEmpty) ++
         fixedChoices.map(_ map IvrStep.apply)
     }
 
@@ -48,12 +48,12 @@ class IvrChoices(sayables: Sayables) extends Ivr(sayables) {
   }
 
   def assignNums[A](choices: List[Choice[A]]): List[Choice[A]] = {
-    val unused = "1234567890".toList.filterNot(n => choices exists (_.key contains n))
+    val unused = DTMF.digits.toList.filterNot(n => choices exists (_.key contains n))
     println("assignNums: unused: " + unused.mkString)
     for (c <- choices) println(s"  ${c.key} / ${c.label}")
     assignNums[A](choices, unused)
   }
-  def assignNums[A](choices: List[Choice[A]], nums: List[Char]): List[Choice[A]] = choices match {
+  def assignNums[A](choices: List[Choice[A]], nums: List[DTMF]): List[Choice[A]] = choices match {
     case Nil                                 => Nil
     case (c @ Choice(Some(n), _, _)) :: rest => c :: assignNums(rest, nums.filter(_ != n))
     case c :: rest                           =>
@@ -73,13 +73,8 @@ class IvrChoices(sayables: Sayables) extends Ivr(sayables) {
 
   def askChoice[A](choiceMenu: ChoiceMenu[A]): IvrStep[A] = {
     val menu = assignNums(choiceMenu.choices.toList)
-    val word: Char => Sayable = {
-      case '*' => `star`
-      case '#' => `pound`
-      case c   => digitWords(c.toString)
-    }
     val menuMsgs = menu.collect {
-      case Choice(Some(key), label, _) => Pause(750) & `Press` & word(key) & label
+      case Choice(Some(key), label, _) => Pause(750) & `Press` & dtmfWord(key) & label
     }
     if (menuMsgs.length < menu.length)
       Console.err.println(s"ERROR: Not all menu choices have keys in ${choiceMenu.title}: $menu")

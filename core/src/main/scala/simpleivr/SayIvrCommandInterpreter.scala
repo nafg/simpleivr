@@ -4,8 +4,8 @@ import cats.effect.IO
 
 
 trait SayIvrCommandInterpreter extends IvrCommand.Interpreter[IO] {
-  def sayer: String => Sayable => IO[Option[Char]]
+  def sayer: Set[DTMF] => Sayable => IO[Option[DTMF]]
 
-  override def say(sayable: Sayable, interruptDigits: String) =
-    sayer(interruptDigits).apply(sayable)
+  override def say(sayable: Sayable, interruptDtmfs: Set[DTMF]) =
+    sayer(interruptDtmfs).apply(sayable)
 }

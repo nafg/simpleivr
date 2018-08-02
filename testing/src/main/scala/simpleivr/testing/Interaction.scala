@@ -2,14 +2,14 @@ package simpleivr.testing
 
 import scala.util.matching.Regex
 
-import simpleivr.Sayable
+import simpleivr.{DTMF, Sayable}
 
 
 sealed trait Interaction
 
 object Interaction {
   case class WaitForSayable(f: Sayable => Boolean) extends Interaction
-  case class Press(digits: List[Char]) extends Interaction
+  case class Press(dtmfs: List[DTMF]) extends Interaction
   case class ChooseOption(text: String) extends Interaction
   case class WaitForOriginate(f: (String, String, Seq[String]) => Boolean) extends Interaction
   case class WaitForDial(f: String => Boolean) extends Interaction
@@ -32,7 +32,7 @@ class Interactions(val interactions: List[Interaction]) {
   }
   def waitForSayableWith(text: String): Interactions = waitForSayableWith(Regex.quote(text).r.unanchored)
   def waitForSayableMatching(pf: PartialFunction[Sayable, Unit]) = waitForSayableWhere(pf.lift.andThen(_.isDefined))
-  def press(digits: String) = this + Interaction.Press(digits.toList)
+  def press(dtmfs: String) = this + Interaction.Press(dtmfs.toList.map(DTMF.fromChar(_)))
   def chooseOption(text: String) = this + Interaction.ChooseOption(text)
   def waitForOriginateWhere(f: (String, String, Seq[String]) => Boolean) = this + Interaction.WaitForOriginate(f)
   def waitForOriginateMatching(pf: PartialFunction[(String, String, Seq[String]), Unit]) =

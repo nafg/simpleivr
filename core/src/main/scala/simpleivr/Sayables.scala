@@ -103,11 +103,10 @@ abstract class Sayables(val audioFileBackend: AudioFileBackend) extends Speaks {
 
   def digitWords(s: String): Sayable = Sayable.Seq(s.toSeq.map(c => numberWords(c - '0')))
 
-  def charWord(c: Char): Sayable = c match {
-    case '#'                             => `pound`
-    case '*'                             => `star`
-    case chr if chr >= '0' && chr <= '9' => digitWords(chr.toString)
-    // TODO other case? log error? use better type than Char?
+  def dtmfWord(c: DTMF): Sayable = c match {
+    case DTMF.`#` => `pound`
+    case DTMF.*   => `star`
+    case _        => digitWords(c.toString)
   }
 
   def timeWords(time: LocalTime) =

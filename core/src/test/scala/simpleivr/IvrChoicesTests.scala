@@ -8,16 +8,27 @@ class IvrChoicesTests extends FunSuite with Matchers {
     val ivrChoices = new IvrChoices(DummySayables)
     import ivrChoices._
 
-    def defined(char: Char) = Choice(char, Sayable.Empty, ())
+    def defined(key: DTMF) = Choice(key, Sayable.Empty, ())
 
     def auto = Choice(Sayable.Empty, ())
 
     val actual =
-      assignNums(List(defined('1'), auto, defined('2'), auto, auto, auto, auto, auto, auto, auto))
+      assignNums(List(defined(DTMF.`1`), auto, defined(DTMF.`2`), auto, auto, auto, auto, auto, auto, auto))
         .map(_.key)
 
     val expected =
-      List(Some('1'), Some('3'), Some('2'), Some('4'), Some('5'), Some('6'), Some('7'), Some('8'), Some('9'), Some('0'))
+      List(
+        Some(DTMF.`1`),
+        Some(DTMF.`3`),
+        Some(DTMF.`2`),
+        Some(DTMF.`4`),
+        Some(DTMF.`5`),
+        Some(DTMF.`6`),
+        Some(DTMF.`7`),
+        Some(DTMF.`8`),
+        Some(DTMF.`9`),
+        Some(DTMF.`0`)
+      )
 
     actual shouldBe expected
   }

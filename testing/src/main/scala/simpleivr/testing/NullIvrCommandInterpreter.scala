@@ -3,15 +3,21 @@ package simpleivr.testing
 import java.io.File
 
 import cats.effect.IO
-import simpleivr.Sayable
+import simpleivr.{DTMF, Sayable}
 
 
 class NullIvrCommandInterpreter extends IdIvrCommandInterpreter {
-  override def streamFile(pathAndName: String, interruptChars: String): Char = 0
-  override def waitForDigit(timeout: Int): Option[Char] = None
-  override def say(sayable: Sayable, interruptDigits: String): Option[Char] = None
+  override def streamFile(pathAndName: String, interruptDtmfs: Set[DTMF]): Option[DTMF] = None
+  override def waitForDigit(timeout: Int): Option[DTMF] = None
+  override def say(sayable: Sayable, interruptDtmfs: Set[DTMF]): Option[DTMF] = None
   override def callerId: String = null
-  override def recordFile(pathAndName: String, format: String, interruptChars: String, timeLimitMillis: Int, offset: Int, beep: Boolean, maxSilenceSecs: Int): Char = '#'
+  override def recordFile(pathAndName: String,
+                          format: String,
+                          interruptDtmfs: Set[DTMF],
+                          timeLimitMillis: Int,
+                          offset: Int,
+                          beep: Boolean,
+                          maxSilenceSecs: Int): Option[DTMF] = None
   override def dial(to: String, ringTimeout: Int, flags: String): Int = 0
   override def amd: Int = 0
   override def getVar(name: String): Option[String] = None

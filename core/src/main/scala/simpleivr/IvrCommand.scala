@@ -24,9 +24,17 @@ sealed trait IvrCommand[A] extends Product {
 object IvrCommand {
   class Interpreter[F[_]] {
     def default[T]: IvrCommand[T] => F[T] = (cmd: IvrCommand[T]) => throw new MatchError(cmd)
-    def streamFile(pathAndName: String, interruptChars: String): F[Char] = default(StreamFile(pathAndName, interruptChars))
-    def recordFile(pathAndName: String, format: String, interruptChars: String, timeLimitMillis: Int, offset: Int, beep: Boolean, maxSilenceSecs: Int): F[Char] = default(RecordFile(pathAndName, format, interruptChars, timeLimitMillis, offset, beep, maxSilenceSecs))
-    def waitForDigit(timeout: Int): F[Option[Char]] = default(WaitForDigit(timeout))
+    def streamFile(pathAndName: String, interruptDtmfs: Set[DTMF]): F[Option[DTMF]] =
+      default(StreamFile(pathAndName, interruptDtmfs))
+    def recordFile(pathAndName: String,
+                   format: String,
+                   interruptDtmfs: Set[DTMF],
+                   timeLimitMillis: Int,
+                   offset: Int,
+                   beep: Boolean,
+                   maxSilenceSecs: Int): F[Option[DTMF]] =
+      default(RecordFile(pathAndName, format, interruptDtmfs, timeLimitMillis, offset, beep, maxSilenceSecs))
+    def waitForDigit(timeout: Int): F[Option[DTMF]] = default(WaitForDigit(timeout))
     def dial(to: String, ringTimeout: Int, flags: String): F[Int] = default(Dial(to, ringTimeout, flags))
     def amd: F[Int] = default(Amd)
     def getVar(name: String): F[Option[String]] = default(GetVar(name))
@@ -35,25 +43,25 @@ object IvrCommand {
     def monitor(file: File): F[Unit] = default(Monitor(file))
     def hangup: F[Unit] = default(Hangup)
     def setAutoHangup(seconds: Int): F[Unit] = default(SetAutoHangup(seconds))
-    def say(sayable: Sayable, interruptDigits: String = ""): F[Option[Char]] = default(Say(sayable, interruptDigits))
+    def say(sayable: Sayable, interruptDtmfs: Set[DTMF] = Set.empty): F[Option[DTMF]] = default(Say(sayable, interruptDtmfs))
     def originate(dest: String, script: String, args: Seq[String]): F[Unit] = default(Originate(dest, script, args))
     def liftIO[A](io: IO[A]): F[A] = default(LiftIO(io))
   }
 
-  case class StreamFile(pathAndName: String, interruptChars: String) extends IvrCommand[Char] {
-    override def fold[F[_]](folder: Interpreter[F]) = folder.streamFile(pathAndName, interruptChars)
+  case class StreamFile(pathAndName: String, interruptDtmfs: Set[DTMF]) extends IvrCommand[Option[DTMF]] {
+    override def fold[F[_]](folder: Interpreter[F]) = folder.streamFile(pathAndName, interruptDtmfs)
   }
   case class RecordFile(pathAndName: String,
                         format: String,
-                        interruptChars: String,
+                        interruptDtmfs: Set[DTMF],
                         timeLimitMillis: Int,
                         offset: Int,
                         beep: Boolean,
-                        maxSilenceSecs: Int) extends IvrCommand[Char] {
+                        maxSilenceSecs: Int) extends IvrCommand[Option[DTMF]] {
     override def fold[F[_]](folder: Interpreter[F]) =
-      folder.recordFile(pathAndName, format, interruptChars, timeLimitMillis, offset, beep, maxSilenceSecs)
+      folder.recordFile(pathAndName, format, interruptDtmfs, timeLimitMillis, offset, beep, maxSilenceSecs)
   }
-  case class WaitForDigit(timeout: Int) extends IvrCommand[Option[Char]] {
+  case class WaitForDigit(timeout: Int) extends IvrCommand[Option[DTMF]] {
     override def fold[F[_]](folder: Interpreter[F]) = folder.waitForDigit(timeout)
   }
   case class Dial(to: String, ringTimeout: Int, flags: String) extends IvrCommand[Int] {
@@ -80,8 +88,8 @@ object IvrCommand {
   case class SetAutoHangup(seconds: Int) extends IvrCommand[Unit] {
     override def fold[F[_]](folder: Interpreter[F]) = folder.setAutoHangup(seconds)
   }
-  case class Say(sayable: Sayable, interruptDigits: String = "") extends IvrCommand[Option[Char]] {
-    override def fold[F[_]](folder: Interpreter[F]) = folder.say(sayable, interruptDigits)
+  case class Say(sayable: Sayable, interruptDtmfs: Set[DTMF]) extends IvrCommand[Option[DTMF]] {
+    override def fold[F[_]](folder: Interpreter[F]) = folder.say(sayable, interruptDtmfs)
   }
   case class Originate(dest: String, script: String, args: Seq[String]) extends IvrCommand[Unit] {
     override def fold[F[_]](folder: Interpreter[F]) = folder.originate(dest, script, args)
