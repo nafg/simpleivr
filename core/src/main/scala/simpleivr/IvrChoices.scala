@@ -71,20 +71,28 @@ class IvrChoices(sayables: Sayables) extends Ivr(sayables) {
       new ChoiceMenu(title, choices)
   }
 
-  def askChoice[A](choiceMenu: ChoiceMenu[A]): IvrStep[A] = {
+  sealed class SayChoice(val func: (DTMF, Sayable) => Sayable)
+  object SayChoice {
+    case object LabelFirst extends SayChoice((key, label) => label & `Press` & dtmfWord(key))
+    case object LabelLast extends SayChoice((key, label) => `Press` & dtmfWord(key) & label)
+  }
+
+  def askChoice[A](choiceMenu: ChoiceMenu[A],
+                   pause: Int = 750,
+                   sayChoice: SayChoice = SayChoice.LabelLast): IvrStep[A] = {
     val menu = assignNums(choiceMenu.choices.toList)
     val menuMsgs = menu.collect {
-      case Choice(Some(key), label, _) => Pause(750) & `Press` & dtmfWord(key) & label
+      case Choice(Some(key), label, _) => Pause(pause) & `Press` & dtmfWord(key) & label
     }
     if (menuMsgs.length < menu.length)
       Console.err.println(s"ERROR: Not all menu choices have keys in ${choiceMenu.title}: $menu")
 
     def loop: IvrStep[A] = sayAndGetDigit(choiceMenu.title & Sayable.Seq(menuMsgs)) flatMap {
-      case None    => IvrStep.say(`Please make a selection` & Pause(750)) *> loop
+      case None    => IvrStep.say(`Please make a selection` & Pause(pause)) *> loop
       case Some(c) =>
         menu.find(_.key.contains(c)) match {
           case Some(choice) => IvrStep(choice.value)
-          case None         => IvrStep.say(`That is not one of the choices.` & Pause(750)) *> loop
+          case None         => IvrStep.say(`That is not one of the choices.` & Pause(pause)) *> loop
         }
     }
 

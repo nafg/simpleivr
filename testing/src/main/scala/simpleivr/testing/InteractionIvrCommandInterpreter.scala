@@ -56,13 +56,14 @@ class InteractionIvrCommandInterpreter(var interactions: List[Interaction], over
       case Sayable("star")  => Some(DTMF.*)
     }
   }
-  private def toChoices(sayables: List[Sayable]): List[(DTMF, Sayable)] = sayables match {
-    case Pause(_) :: Sayable("Press") :: digit(d) :: rest =>
-      val (label, more) = rest.span { case Pause(_) => false case _ => true }
-      (d -> Sayable.Seq(label)) :: toChoices(more)
-    case _ :: rest                                        => toChoices(rest)
-    case Nil                                              => Nil
-  }
+
+  private def toChoices(sayables: List[Sayable.Single]): List[(DTMF, Sayable)] =
+    Util.spans(sayables) { case Pause(_) => true case _ => false }
+      .flatMap {
+        case Sayable("Press") +: digit(d) +: label => Some(d -> Sayable.Seq(label))
+        case label :+ Sayable("Press") :+ digit(d) => Some(d -> Sayable.Seq(label))
+        case other                                 => None
+      }
 
   override def waitForDigit(timeout: Int): Option[DTMF] = modHead(takeInput()).flatten
   override def say(sayable: Sayable, interruptDtmfs: Set[DTMF]): Option[DTMF] = {
@@ -85,3 +86,5 @@ class InteractionIvrCommandInterpreter(var interactions: List[Interaction], over
     0
   }
 }
+
+
