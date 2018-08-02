@@ -9,7 +9,7 @@ import cats.effect.IO
 
 
 object Text2waveSpeakGenerator extends SpeakGenerator {
-  override def apply(speak: Sayables#Speak) =
+  override def apply(speak: Speaks#Speak) =
     speak.files.exists.flatMap {
       case true  => IO.unit
       case false =>

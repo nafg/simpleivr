@@ -38,6 +38,20 @@ object Sayable {
     case speak: Speaks#Speak => speak.msg
     case s                   => s
   })
+
+  trait Folder[A] extends (Sayable => A) {
+    def apply(sayable: Sayable): A = sayable match {
+      case Pause(ms)       => pause(ms)
+      case Play(path)      => play(path)
+      case s: Speaks#Speak => speak(s)
+      case Seq(sayables)   => seq(sayables.toList)
+    }
+
+    def pause(ms: Int): A
+    def play(path: AudioPath): A
+    def speak(spk: Speaks#Speak): A
+    def seq(sayables: List[Sayable]): A
+  }
 }
 
 case class Pause(ms: Int) extends Sayable.Single

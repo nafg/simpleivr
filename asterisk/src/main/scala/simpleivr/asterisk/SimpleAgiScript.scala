@@ -5,15 +5,16 @@ import org.asteriskjava.fastagi._
 import simpleivr._
 
 
-abstract class SimpleAgiScript(val speakGenerator: SpeakGenerator = Text2waveSpeakGenerator) extends AgiScript {
+class DefaultIvrCommandInterpreter(val channel: AgiChannel, val sayer: String => Sayable => IO[Option[Char]])
+  extends SayIvrCommandInterpreter with AgiIvrCommandInterpreter
+
+abstract class SimpleAgiScript extends AgiScript {
   abstract class Handler(val request: AgiRequest, val channel: AgiChannel) {
-    trait DefaultIvrCommandInterpreter extends SayIvrCommandInterpreter with AgiIvrCommandInterpreter {
-      val speakGenerator: SpeakGenerator = SimpleAgiScript.this.speakGenerator
-      val channel = Handler.this.channel
-    }
+    def sayer: String => Sayable => IO[Option[Char]] =
+      digits => new DefaultSayer(ivrCommandInterpreter, digits)
 
     protected lazy val ivrCommandInterpreter: IvrCommand.Interpreter[IO] =
-      new DefaultIvrCommandInterpreter {}
+      new DefaultIvrCommandInterpreter(channel, sayer)
 
     protected def ivrStepRunner = new IvrStepRunner(ivrCommandInterpreter)
 
