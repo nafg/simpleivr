@@ -5,6 +5,6 @@ import simpleivr.DummySayables._
 
 
 class SayablesTests extends FunSuite with Matchers {
-  numberWords(54) shouldBe Sayable.Seq(List(fifty, four))
-  numberWords(111) shouldBe Sayable.Seq(List(one, hundred, and, eleven))
+  numberWords(54) shouldBe Sayable.Many(List(fifty, four))
+  numberWords(111) shouldBe Sayable.Many(List(one, hundred, and, eleven))
 }

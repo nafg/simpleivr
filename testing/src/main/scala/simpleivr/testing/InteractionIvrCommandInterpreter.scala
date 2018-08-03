@@ -60,8 +60,8 @@ class InteractionIvrCommandInterpreter(var interactions: List[Interaction], over
   private def toChoices(sayables: List[Sayable.Single]): List[(DTMF, Sayable)] =
     Util.spans(sayables) { case Pause(_) => true case _ => false }
       .flatMap {
-        case Sayable("Press") +: digit(d) +: label => Some(d -> Sayable.Seq(label))
-        case label :+ Sayable("Press") :+ digit(d) => Some(d -> Sayable.Seq(label))
+        case Sayable("Press") +: digit(d) +: label => Some(d -> Sayable.Many(label))
+        case label :+ Sayable("Press") :+ digit(d) => Some(d -> Sayable.Many(label))
         case other                                 => None
       }
 

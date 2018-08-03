@@ -90,7 +90,7 @@ class IvrChoices(sayables: Sayables) extends Ivr(sayables) {
     if (menuMsgs.length < menu.length)
       Console.err.println(s"ERROR: Not all menu choices have keys in ${choiceMenu.title}: $menu")
 
-    def loop: IvrStep[A] = sayAndGetDigit(choiceMenu.title & Sayable.Seq(menuMsgs)) flatMap {
+    def loop: IvrStep[A] = sayAndGetDigit(choiceMenu.title & Sayable.Many(menuMsgs)) flatMap {
       case None    => IvrStep.say(`Please make a selection` & Pause(pauseMs)) *> loop
       case Some(c) =>
         menu.find(_.key.contains(c)) match {

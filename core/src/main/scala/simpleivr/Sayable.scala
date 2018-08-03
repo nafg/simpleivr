@@ -8,16 +8,16 @@ import sourcecode.Name
 
 sealed trait Sayable {
   final def &(that: Sayable) = (this, that) match {
-    case (Sayable.Empty, _)                       => that
-    case (_, Sayable.Empty)                       => this
-    case (Sayable.Seq(msgs1), Sayable.Seq(msgs2)) => Sayable.Seq(msgs1 ++ msgs2)
-    case (Sayable.Seq(msgs1), msg2)               => Sayable.Seq(msgs1 :+ msg2)
-    case (msg1, Sayable.Seq(msgs2))               => Sayable.Seq(msg1 +: msgs2)
-    case (msg1, msg2)                             => Sayable.Seq(List(msg1, msg2))
+    case (Sayable.Empty, _)                         => that
+    case (_, Sayable.Empty)                         => this
+    case (Sayable.Many(msgs1), Sayable.Many(msgs2)) => Sayable.Many(msgs1 ++ msgs2)
+    case (Sayable.Many(msgs1), msg2)                => Sayable.Many(msgs1 :+ msg2)
+    case (msg1, Sayable.Many(msgs2))                => Sayable.Many(msg1 +: msgs2)
+    case (msg1, msg2)                               => Sayable.Many(List(msg1, msg2))
   }
   final def toSingles: Seq[Sayable.Single] = this match {
     case single: Sayable.Single => Seq(single)
-    case Sayable.Seq(sayables)  => sayables.flatMap(_.toSingles)
+    case Sayable.Many(sayables) => sayables.flatMap(_.toSingles)
   }
   override def toString =
     toSingles
@@ -30,11 +30,11 @@ sealed trait Sayable {
 }
 object Sayable {
   sealed trait Single extends Sayable
-  case class Seq(sayables: scala.Seq[Sayable]) extends Sayable
+  case class Many(sayables: Seq[Sayable]) extends Sayable
 
-  val Empty: Sayable = Seq(Nil)
+  val Empty: Sayable = Many(Nil)
 
-  def unapplySeq(sayable: Sayable): Option[scala.Seq[Any]] = Some(sayable.toSingles.map {
+  def unapplySeq(sayable: Sayable): Option[Seq[Any]] = Some(sayable.toSingles.map {
     case speak: Speaks#Speak => speak.msg
     case s                   => s
   })
@@ -44,13 +44,13 @@ object Sayable {
       case Pause(ms)       => pause(ms)
       case Play(path)      => play(path)
       case s: Speaks#Speak => speak(s)
-      case Seq(sayables)   => seq(sayables.toList)
+      case Many(sayables)  => many(sayables.toList)
     }
 
     def pause(ms: Int): A
     def play(path: AudioPath): A
     def speak(spk: Speaks#Speak): A
-    def seq(sayables: List[Sayable]): A
+    def many(sayables: List[Sayable]): A
   }
 }
 
