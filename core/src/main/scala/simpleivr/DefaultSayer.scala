@@ -32,6 +32,8 @@ class DefaultSayer(interp: IvrCommand.Interpreter[IO], interruptDtmfs: Set[DTMF]
       .flatMap(play)
   }
 
+  override def group(sayable: Sayable) = apply(sayable)
+
   override def many(sayables: List[Sayable]): IO[Option[DTMF]] =
     sayables match {
       case Nil         => IO.pure(None)

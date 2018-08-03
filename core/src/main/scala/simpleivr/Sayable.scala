@@ -18,6 +18,7 @@ sealed trait Sayable {
   final def toSingles: Seq[Sayable.Single] = this match {
     case single: Sayable.Single => Seq(single)
     case Sayable.Many(sayables) => sayables.flatMap(_.toSingles)
+    case Sayable.Group(sayable) => sayable.toSingles
   }
   override def toString =
     toSingles
@@ -30,9 +31,16 @@ sealed trait Sayable {
 }
 object Sayable {
   sealed trait Single extends Sayable
+  case class Group(sayable: Sayable) extends Sayable
   case class Many(sayables: Seq[Sayable]) extends Sayable
 
   val Empty: Sayable = Many(Nil)
+
+  def apply(sayables: Seq[Sayable]) = sayables match {
+    case Seq()       => Empty
+    case Seq(single) => single
+    case many        => Many(many)
+  }
 
   def unapplySeq(sayable: Sayable): Option[Seq[Any]] = Some(sayable.toSingles.map {
     case speak: Speaks#Speak => speak.msg
@@ -44,12 +52,14 @@ object Sayable {
       case Pause(ms)       => pause(ms)
       case Play(path)      => play(path)
       case s: Speaks#Speak => speak(s)
+      case Group(s)        => group(s)
       case Many(sayables)  => many(sayables.toList)
     }
 
     def pause(ms: Int): A
     def play(path: AudioPath): A
     def speak(spk: Speaks#Speak): A
+    def group(sayable: Sayable): A
     def many(sayables: List[Sayable]): A
   }
 }
