@@ -101,7 +101,13 @@ abstract class Sayables(val audioFileBackend: AudioFileBackend) extends Speaks {
     }
   }
 
-  def digitWords(s: String): Sayable = Sayable.Many(s.toSeq.map(c => numberWords(c - '0')))
+  def digitWords(digitString: String): Sayable =
+    Sayable.Many(
+      digitString
+        .map(_ - '0')
+        .filter(d => d >= 0 && d <= 9)
+        .map(numberWords)
+    )
 
   def dtmfWord(c: DTMF): Sayable = c match {
     case DTMF.`#` => `pound`

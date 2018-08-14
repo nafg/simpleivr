@@ -62,7 +62,7 @@ class Ivr(sayables: Sayables) {
       case (acc, x)                                            =>
         def sayDigitOrDigits(n: Int) = numberWords(n) & (if (n == 1) `digit` else `digits`)
 
-        val str = acc + x.filter(_ != '#').mkString
+        val str = acc + x.filter(_ != DTMF.`#`).mkString
         val validated =
           if ((min == max) && (str.length != min)) Left(`You must enter ` & sayDigitOrDigits(min))
           else if (str.length < min) Left(`You must enter at least` & sayDigitOrDigits(min))
