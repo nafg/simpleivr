@@ -43,8 +43,7 @@ trait AgiIvrCommandInterpreter extends IOIvrCommandInterpreter {
     }
       .flatMap {
         case HangupReturnCode => hangupAndQuit
-        case c: Char if c > 0 => IO.pure(Some(DTMF.fromChar(c)))
-        case _                => IO.pure(None)
+        case c                => IO.pure(DTMF.fromChar.get(c))
       }
 
 
