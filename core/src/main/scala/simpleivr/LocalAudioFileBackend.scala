@@ -46,7 +46,7 @@ class LocalAudioFileBackend(val localDir: Path, val path: String) extends AudioF
   override def speakPath(speak: Speaks#Speak) = IO.pure(AudioPath(path + "/" + speakFilename(speak)))
 
   def toAudioPathPure(localAudioFiles: LocalAudioFiles) =
-    AudioPath(path + "/" + localAudioFiles.parent.relativize(localDir) + "/" + localAudioFiles.name)
+    AudioPath(path + "/" + localDir.relativize(localAudioFiles.parent) + "/" + localAudioFiles.name)
 
   override def toAudioPath(localAudioFiles: LocalAudioFiles) = IO.pure(toAudioPathPure(localAudioFiles))
 }
