@@ -1,7 +1,7 @@
 package simpleivr
 
 import java.nio.channels.{FileChannel, WritableByteChannel}
-import java.nio.file.{Files, Path}
+import java.nio.file.{Files, Path, StandardOpenOption}
 
 import cats.effect.IO
 
@@ -17,7 +17,7 @@ case class LocalAudioFile(path: Path) extends AudioFile {
     for {
       fileChan <- IO {
         Files.createDirectories(path.getParent)
-        FileChannel.open(path)
+        FileChannel.open(path, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)
       }
       res <- f(fileChan).attempt
       _ <- IO {
