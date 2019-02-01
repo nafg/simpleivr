@@ -24,7 +24,7 @@ trait ParseChoices {
 
   def parseChoices(sayable: Sayable): List[(DTMF, Sayable)] =
     sayable match {
-      case s: Single                                               => Nil
+      case _: Single                                               => Nil
       case Many(Pause(_) +: Sayable("Press") +: digit(d) +: label) => List(d -> Sayable(label))
       case Many(Pause(_) +: label :+ Sayable("Press") :+ digit(d)) => List(d -> Sayable(label))
       case Many(sayables)                                          => sayables.flatMap(parseChoices).toList

@@ -1,7 +1,5 @@
 package simpleivr
 
-import scala.language.implicitConversions
-
 import cats.effect.IO
 import sourcecode.Name
 

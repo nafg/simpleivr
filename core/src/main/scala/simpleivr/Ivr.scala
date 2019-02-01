@@ -51,11 +51,15 @@ class Ivr(sayables: Sayables) {
       }
   }
 
+  private val simpleHandler: PartialFunction[String, String] = {
+    case x => x
+  }
+
   /**
     * None means * was pressed, signifying that inputting was canceled
     */
   def sayAndHandleDigits[A](min: Int, max: Int, msgs: Sayable)
-                           (handle: PartialFunction[String, A] = PartialFunction(identity[String])): IvrStep[Option[A]] =
+                           (handle: PartialFunction[String, A] = simpleHandler): IvrStep[Option[A]] =
     sayAndHandle(msgs) {
       case (_, Some(DTMF.*))                                   => Some(Right(None))
       case (acc, Some(c)) if acc.length + 1 < max && c.isDigit => None
