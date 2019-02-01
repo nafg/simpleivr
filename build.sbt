@@ -3,6 +3,27 @@ ThisBuild / organization := "io.github.nafg.simpleivr"
 
 def ScalaTest = "org.scalatest" %% "scalatest" % "3.0.5"
 
+ThisBuild / scalacOptions ++= Seq(
+  "-deprecation",
+  "-feature",
+  "-unchecked",
+  "-explaintypes",
+  "-Xfuture",
+  "-Xlint",
+  "-Yno-adapted-args",
+  "-Ypartial-unification",
+  "-Ywarn-dead-code",
+  "-Ywarn-extra-implicit",
+  "-Ywarn-inaccessible",
+  "-Ywarn-infer-any",
+  "-Ywarn-nullary-override",
+  "-Ywarn-nullary-unit",
+  "-Ywarn-numeric-widen",
+  "-Ywarn-unused-import",
+  "-Ywarn-unused",
+  "-Ywarn-value-discard"
+)
+
 lazy val core = project
   .settings(
     name := "simpleivr-core",
