@@ -3,7 +3,7 @@ jdk:
 
 language: scala
 
-script: "sbt test"
+script: "sbt evicted test"
 
 deploy:
   provider: script
