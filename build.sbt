@@ -1,4 +1,4 @@
-ThisBuild / scalaVersion := "2.12.6"
+ThisBuild / scalaVersion := "2.12.8"
 ThisBuild / organization := "io.github.nafg.simpleivr"
 
 def ScalaTest = "org.scalatest" %% "scalatest" % "3.0.8"
