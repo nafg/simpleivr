@@ -15,7 +15,7 @@ class Ami(settings: AmiSettings)
     val startTime = System.currentTimeMillis()
     println(s"Executing call for $scriptAndArgs at ${Instant.now}")
     var chan: Option[AsteriskChannel] = None
-    import scala.collection.JavaConverters._
+    import scala.jdk.CollectionConverters._
     originateToApplicationAsync(
       s"SIP/${settings.peer}/1$dest",
       "Agi",

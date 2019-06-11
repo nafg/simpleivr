@@ -2,8 +2,6 @@ package simpleivr
 
 import java.io.File
 
-import scala.language.higherKinds
-
 import cats.Functor
 import cats.effect.IO
 import cats.free.Free
