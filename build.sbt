@@ -30,7 +30,7 @@ lazy val core = project
     libraryDependencies ++= Seq(
       "com.lihaoyi" %% "sourcecode" % "0.1.7",
       "org.typelevel" %% "cats-free" % "2.0.0",
-      "org.typelevel" %% "cats-effect" % "1.4.0",
+      "org.typelevel" %% "cats-effect" % "2.0.0",
       ScalaTest % Test
     )
   )
