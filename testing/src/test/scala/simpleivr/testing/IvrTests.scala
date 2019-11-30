@@ -2,11 +2,12 @@ package simpleivr.testing
 
 import scala.util.Try
 
-import org.scalatest.{FunSuite, Matchers}
 import simpleivr._
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
 
-class IvrTests extends FunSuite with Matchers with InteractionTest {
+class IvrTests extends AnyFunSuite with Matchers with InteractionTest {
   val ivr = new Ivr(DummySayables)
 
   import ivr._

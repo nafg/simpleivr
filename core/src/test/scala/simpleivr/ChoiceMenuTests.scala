@@ -1,9 +1,10 @@
 package simpleivr
 
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
 
-class ChoiceMenuTests extends FunSuite with Matchers {
+class ChoiceMenuTests extends AnyFunSuite with Matchers {
   test("assigned") {
     def defined(key: DTMF) = Choice(key, Sayable.Empty, ())
 
