@@ -1,10 +1,10 @@
 package simpleivr.testing
 
-import org.scalatest.FunSuite
 import simpleivr._
+import org.scalatest.funsuite.AnyFunSuite
 
 
-class ParseChoiceTests extends FunSuite with ParseChoices {
+class ParseChoiceTests extends AnyFunSuite with ParseChoices {
   test("parseChoices") {
     object S extends DummySayables {
       val `do one thing`, `do something else` = speak

@@ -1,7 +1,7 @@
 ThisBuild / scalaVersion := "2.12.8"
 ThisBuild / organization := "io.github.nafg.simpleivr"
 
-def ScalaTest = "org.scalatest" %% "scalatest" % "3.0.8"
+def ScalaTest = "org.scalatest" %% "scalatest" % "3.1.0"
 
 ThisBuild / scalacOptions ++= Seq(
   "-deprecation",

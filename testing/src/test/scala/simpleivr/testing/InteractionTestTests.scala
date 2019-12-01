@@ -1,11 +1,12 @@
 package simpleivr.testing
 
 import cats.implicits._
-import org.scalatest.{FunSuite, Matchers}
 import simpleivr._
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
 
-class InteractionTestTests extends FunSuite with Matchers with InteractionTest {
+class InteractionTestTests extends AnyFunSuite with Matchers with InteractionTest {
   test("Non-interactive computation") {
     val steps =
       IvrStep(10).flatMap { i =>
