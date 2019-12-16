@@ -1,4 +1,5 @@
-ThisBuild / scalaVersion := "2.12.10"
+ThisBuild / crossScalaVersions := Seq("2.12.10", "2.13.1")
+ThisBuild / scalaVersion := (ThisBuild / crossScalaVersions).value.last
 ThisBuild / organization := "io.github.nafg.simpleivr"
 
 def ScalaTest = "org.scalatest" %% "scalatest" % "3.1.0"
@@ -8,21 +9,19 @@ ThisBuild / scalacOptions ++= Seq(
   "-feature",
   "-unchecked",
   "-explaintypes",
-  "-Xfuture",
-  "-Xlint",
-  "-Yno-adapted-args",
-  "-Ypartial-unification",
+  "-Xlint:_",
   "-Ywarn-dead-code",
   "-Ywarn-extra-implicit",
-  "-Ywarn-inaccessible",
-  "-Ywarn-infer-any",
-  "-Ywarn-nullary-override",
-  "-Ywarn-nullary-unit",
   "-Ywarn-numeric-widen",
-  "-Ywarn-unused-import",
-  "-Ywarn-unused",
+  "-Ywarn-unused:_",
   "-Ywarn-value-discard"
 )
+
+ThisBuild / scalacOptions ++=
+  (if (scalaVersion.value.startsWith("2.12."))
+    List("-language:higherKinds", "-Xfuture", "-Ypartial-unification")
+  else
+    Nil)
 
 lazy val core = project
   .settings(
@@ -46,7 +45,8 @@ lazy val asterisk = project
   .dependsOn(core)
   .settings(
     name := "simpleivr-asterisk",
-    libraryDependencies += "org.asteriskjava" % "asterisk-java" % "2.0.2"
+    libraryDependencies += "org.asteriskjava" % "asterisk-java" % "2.0.2",
+    libraryDependencies += "org.scala-lang.modules" %% "scala-collection-compat" % "2.1.3"
   )
 
 skip in publish := true
