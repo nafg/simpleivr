@@ -12,7 +12,7 @@ class DefaultSayer(interp: IvrCommand.Interpreter[IO], interruptDtmfs: Set[DTMF]
     if (ms <= 0)
       IO.pure(None)
     else if (interruptDtmfs.isEmpty)
-      IO(Thread.sleep(ms)).map(_ => None)
+      IO(Thread.sleep(ms.toLong)).map(_ => None)
     else
       for {
         startTime <- curTime
