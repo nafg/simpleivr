@@ -28,8 +28,8 @@ lazy val core = project
     name := "simpleivr-core",
     libraryDependencies ++= Seq(
       "com.lihaoyi" %% "sourcecode" % "0.2.1",
-      "org.typelevel" %% "cats-free" % "2.3.0",
-      "org.typelevel" %% "cats-effect" % "2.3.1",
+      "org.typelevel" %% "cats-free" % "2.3.1",
+      "org.typelevel" %% "cats-effect" % "2.2.0",
       ScalaTest % Test
     )
   )
