@@ -1,4 +1,4 @@
-ThisBuild / crossScalaVersions := Seq("2.12.10", "2.13.5")
+ThisBuild / crossScalaVersions := Seq("2.12.13", "2.13.5")
 ThisBuild / scalaVersion := (ThisBuild / crossScalaVersions).value.last
 ThisBuild / organization := "io.github.nafg.simpleivr"
 
