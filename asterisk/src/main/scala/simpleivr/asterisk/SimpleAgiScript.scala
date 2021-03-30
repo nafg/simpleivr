@@ -1,6 +1,7 @@
 package simpleivr.asterisk
 
 import cats.effect.IO
+import cats.effect.unsafe.implicits.global
 import org.asteriskjava.fastagi._
 import simpleivr._
 

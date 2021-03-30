@@ -3,6 +3,7 @@ package simpleivr.testing
 import java.io.File
 
 import cats.effect.IO
+import cats.effect.unsafe.implicits.global
 import simpleivr.{DTMF, Sayable}
 
 
