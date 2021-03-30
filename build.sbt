@@ -28,8 +28,8 @@ lazy val core = project
     name := "simpleivr-core",
     libraryDependencies ++= Seq(
       "com.lihaoyi" %% "sourcecode" % "0.2.4",
-      "org.typelevel" %% "cats-free" % "2.4.2",
-      "org.typelevel" %% "cats-effect" % "3.0.1",
+      "org.typelevel" %% "cats-free" % "2.5.0",
+      "org.typelevel" %% "cats-effect" % "2.4.1",
       ScalaTest % Test
     )
   )
@@ -46,7 +46,7 @@ lazy val asterisk = project
   .settings(
     name := "simpleivr-asterisk",
     libraryDependencies += "org.asteriskjava" % "asterisk-java" % "3.11.0",
-    libraryDependencies += "org.scala-lang.modules" %% "scala-collection-compat" % "2.4.2"
+    libraryDependencies += "org.scala-lang.modules" %% "scala-collection-compat" % "2.4.3"
   )
 
 skip in publish := true
