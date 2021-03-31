@@ -1,7 +1,6 @@
 package simpleivr
 
 import cats.effect.IO
-import cats.implicits._
 
 
 class SpeakGeneratingSayer(interp: IvrCommand.Interpreter[IO],

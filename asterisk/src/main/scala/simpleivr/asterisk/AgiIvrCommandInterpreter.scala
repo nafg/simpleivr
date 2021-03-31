@@ -4,7 +4,6 @@ import java.io.File
 import java.nio.file.Paths
 
 import cats.effect.IO
-import cats.implicits._
 import org.asteriskjava.fastagi.{AgiChannel, AgiHangupException}
 import simpleivr.{DTMF, IOIvrCommandInterpreter}
 
@@ -88,4 +87,3 @@ trait AgiIvrCommandInterpreter extends IOIvrCommandInterpreter {
         case c                => IO.pure(Some(DTMF.fromChar(c)))
       }
 }
-
