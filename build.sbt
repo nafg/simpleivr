@@ -2,7 +2,7 @@ ThisBuild / crossScalaVersions := Seq("2.12.13", "2.13.5")
 ThisBuild / scalaVersion := (ThisBuild / crossScalaVersions).value.last
 ThisBuild / organization := "io.github.nafg.simpleivr"
 
-def ScalaTest = "org.scalatest" %% "scalatest" % "3.2.7"
+def ScalaTest = "org.scalatest" %% "scalatest" % "3.2.8"
 
 ThisBuild / scalacOptions ++= Seq(
   "-deprecation",
