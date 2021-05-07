@@ -1,9 +1,9 @@
 package simpleivr.testing
 
-import scala.io.AnsiColor
-
-import cats.Id
+import cats.{Id, catsInstancesForId}
 import simpleivr.{IvrCommand, IvrStep}
+
+import scala.io.AnsiColor
 
 
 trait InteractionTestBase {

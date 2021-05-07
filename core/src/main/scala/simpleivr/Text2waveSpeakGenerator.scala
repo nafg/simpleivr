@@ -26,6 +26,7 @@ object Text2waveSpeakGenerator extends SpeakGenerator {
               text2wave.waitFor()
               Source.fromInputStream(text2wave.getErrorStream).getLines() foreach println
               Files.copy(tmpFile, Channels.newOutputStream(writeChan))
+              ()
             }
           }
           .flatMap { either =>

@@ -48,11 +48,13 @@ trait AgiIvrCommandInterpreter extends IOIvrCommandInterpreter {
 
   override def waitForSilence(ms: Int, repeat: Int = 1, timeoutSec: Option[Int] = None) = IO {
     channel.exec("WaitForSilence", s"$ms,$repeat" + timeoutSec.map("," + _).getOrElse(""))
+    ()
   }
 
   override def monitor(file: File) = IO {
     channel.exec("System", s"mkdir -p ${file.getParentFile.getAbsolutePath}")
     channel.exec("MixMonitor", file.getAbsolutePath)
+    ()
   }
 
   override def hangup = IO {
