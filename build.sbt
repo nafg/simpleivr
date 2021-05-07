@@ -49,4 +49,4 @@ lazy val asterisk = project
     libraryDependencies += "org.scala-lang.modules" %% "scala-collection-compat" % "2.4.3"
   )
 
-skip in publish := true
+publish / skip := true
