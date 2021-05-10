@@ -20,24 +20,24 @@ trait AgiIvrCommandInterpreter extends IOIvrCommandInterpreter {
     hangup *>
       IO.raiseError(new AgiHangupException)
 
-  override def dial(to: String, ringTimeout: Int, flags: String) = IO {
+  override def dial(to: String, ringTimeout: Int, flags: String) = IO.blocking {
     channel.exec("Dial", s"$to,$ringTimeout|$flags")
   }
 
-  override def amd = IO {
+  override def amd = IO.blocking {
     channel.exec("AMD")
   }
 
-  override def getVar(name: String) = IO {
+  override def getVar(name: String) = IO.blocking {
     Option(channel.getFullVariable("${" + name + "}"))
   }
 
-  override def callerId: IO[String] = IO {
+  override def callerId: IO[String] = IO.blocking {
     channel.getFullVariable("$" + "{CALLERID(num)}")
   }
 
   override def waitForDigit(timeout: Int): IO[Option[DTMF]] =
-    IO {
+    IO.blocking {
       channel.waitForDigit(timeout)
     }
       .flatMap {
@@ -46,18 +46,18 @@ trait AgiIvrCommandInterpreter extends IOIvrCommandInterpreter {
       }
 
 
-  override def waitForSilence(ms: Int, repeat: Int = 1, timeoutSec: Option[Int] = None) = IO {
+  override def waitForSilence(ms: Int, repeat: Int = 1, timeoutSec: Option[Int] = None) = IO.blocking {
     channel.exec("WaitForSilence", s"$ms,$repeat" + timeoutSec.map("," + _).getOrElse(""))
     ()
   }
 
-  override def monitor(file: File) = IO {
+  override def monitor(file: File) = IO.blocking {
     channel.exec("System", s"mkdir -p ${file.getParentFile.getAbsolutePath}")
     channel.exec("MixMonitor", file.getAbsolutePath)
     ()
   }
 
-  override def hangup = IO {
+  override def hangup = IO.blocking {
     channel.hangup()
   }
 
@@ -67,7 +67,7 @@ trait AgiIvrCommandInterpreter extends IOIvrCommandInterpreter {
                           timeLimitMillis: Int,
                           offset: Int,
                           beep: Boolean,
-                          maxSilenceSecs: Int) = IO {
+                          maxSilenceSecs: Int) = IO.blocking {
     val parent = Paths.get(pathAndName).getParent.toString
     channel.exec("System", s"mkdir -p $parent")
     val ch =
@@ -75,12 +75,12 @@ trait AgiIvrCommandInterpreter extends IOIvrCommandInterpreter {
     DTMF.fromChar.get(ch)
   }
 
-  override def setAutoHangup(seconds: Int): IO[Unit] = IO {
+  override def setAutoHangup(seconds: Int): IO[Unit] = IO.blocking {
     channel.setAutoHangup(seconds)
   }
 
   override def streamFile(pathAndName: String, interruptDtmfs: Set[DTMF]) =
-    IO {
+    IO.blocking {
       channel.streamFile(pathAndName, interruptDtmfs.mkString)
     }
       .flatMap {

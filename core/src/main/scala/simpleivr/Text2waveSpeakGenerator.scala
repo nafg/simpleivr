@@ -15,7 +15,7 @@ object Text2waveSpeakGenerator extends SpeakGenerator {
       case false =>
         speak.files.wavFile
           .write { writeChan =>
-            IO {
+            IO.blocking {
               println("Falling back to text2wave because audio file does not exist: " + speak.files.supportedAudioFiles)
               val tmpFile = Files.createTempFile("chavrusa-text2wave", ".wav")
               val text2wave = Runtime.getRuntime.exec("/usr/bin/text2wave -scale 1.5 -F 8000 -o " + tmpFile.toString)
@@ -30,7 +30,7 @@ object Text2waveSpeakGenerator extends SpeakGenerator {
             }
           }
           .flatMap { either =>
-            IO {
+            IO.blocking {
               either.left.foreach(_.printStackTrace())
             }
           }

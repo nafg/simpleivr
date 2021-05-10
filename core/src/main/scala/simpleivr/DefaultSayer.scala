@@ -2,6 +2,8 @@ package simpleivr
 
 import cats.effect.IO
 
+import scala.concurrent.duration.DurationInt
+
 
 class DefaultSayer(interp: IvrCommand.Interpreter[IO], interruptDtmfs: Set[DTMF])
   extends Sayable.Folder[IO[Option[DTMF]]] {
@@ -12,7 +14,7 @@ class DefaultSayer(interp: IvrCommand.Interpreter[IO], interruptDtmfs: Set[DTMF]
     if (ms <= 0)
       IO.pure(None)
     else if (interruptDtmfs.isEmpty)
-      IO(Thread.sleep(ms.toLong)).map(_ => None)
+      IO.sleep(ms.millis).as(None)
     else
       for {
         startTime <- curTime
@@ -45,5 +47,3 @@ class DefaultSayer(interp: IvrCommand.Interpreter[IO], interruptDtmfs: Set[DTMF]
           }
     }
 }
-
-

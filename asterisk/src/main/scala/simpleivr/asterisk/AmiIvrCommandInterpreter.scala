@@ -8,7 +8,7 @@ trait AmiIvrCommandInterpreter extends IOIvrCommandInterpreter {
   def ami: Ami
 
   override def originate(dest: String, script: String, args: Seq[String]): IO[Unit] =
-    IO {
+    IO.blocking {
       ami.originate(dest, script, args)
     }
 }

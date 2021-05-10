@@ -9,23 +9,28 @@ import cats.effect.IO
 case class LocalAudioFile(path: Path) extends AudioFile {
   override def name = path.toString
 
-  override def exists = IO {
+  override def exists = IO.blocking {
     Files.exists(path)
   }
 
   override def write(f: WritableByteChannel => IO[Unit]): IO[Either[Throwable, Unit]] =
     for {
-      fileChan <- IO {
+      fileChan <- IO.blocking {
         Files.createDirectories(path.getParent)
-        FileChannel.open(path, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)
+        FileChannel.open(
+          path,
+          StandardOpenOption.WRITE,
+          StandardOpenOption.TRUNCATE_EXISTING,
+          StandardOpenOption.CREATE
+        )
       }
       res <- f(fileChan).attempt
-      _ <- IO {
+      _ <- IO.blocking {
         fileChan.close()
       }
     } yield res
 
-  override def lastModified = IO {
+  override def lastModified = IO.blocking {
     Files.getLastModifiedTime(path).toInstant
   }
 }
