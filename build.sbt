@@ -1,7 +1,13 @@
 import _root_.io.github.nafg.scalacoptions.{ScalacOptions, options}
 
 ThisBuild / crossScalaVersions := Seq("2.12.13", "2.13.5", "3.0.0-RC3")
-ThisBuild / scalaVersion := (ThisBuild / crossScalaVersions).value.last
+ThisBuild / scalaVersion := {
+  val versions = (ThisBuild / crossScalaVersions).value
+  if (sys.props.contains("idea.managed"))
+    versions.filter(_.startsWith("2.")).last
+  else
+    versions.last
+}
 ThisBuild / organization := "io.github.nafg.simpleivr"
 
 def ScalaTest = "org.scalatest" %% "scalatest" % "3.2.8"
