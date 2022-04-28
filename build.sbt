@@ -57,7 +57,7 @@ lazy val asterisk = project
   .dependsOn(core)
   .settings(
     name := "simpleivr-asterisk",
-    libraryDependencies += "org.asteriskjava" % "asterisk-java" % "3.28.0",
+    libraryDependencies += "org.asteriskjava" % "asterisk-java" % "3.29.0",
     libraryDependencies += "org.scala-lang.modules" %% "scala-collection-compat" % "2.7.0"
   )
 
