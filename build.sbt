@@ -1,6 +1,6 @@
 import _root_.io.github.nafg.scalacoptions.{ScalacOptions, options}
 
-ThisBuild / crossScalaVersions := Seq("2.12.16", "2.13.8", "3.1.2")
+ThisBuild / crossScalaVersions := Seq("2.12.16", "2.13.8", "3.1.3")
 ThisBuild / scalaVersion := {
   val versions = (ThisBuild / crossScalaVersions).value
   if (sys.props.contains("idea.managed"))
@@ -39,9 +39,9 @@ lazy val core = project
   .settings(
     name := "simpleivr-core",
     libraryDependencies ++= Seq(
-      "com.lihaoyi" %% "sourcecode" % "0.2.8",
+      "com.lihaoyi" %% "sourcecode" % "0.3.0",
       "org.typelevel" %% "cats-free" % "2.7.0",
-      "org.typelevel" %% "cats-effect" % "3.3.12",
+      "org.typelevel" %% "cats-effect" % "3.3.13",
       ScalaTest % Test
     )
   )
@@ -58,7 +58,7 @@ lazy val asterisk = project
   .settings(
     name := "simpleivr-asterisk",
     libraryDependencies += "org.asteriskjava" % "asterisk-java" % "3.29.0",
-    libraryDependencies += "org.scala-lang.modules" %% "scala-collection-compat" % "2.7.0"
+    libraryDependencies += "org.scala-lang.modules" %% "scala-collection-compat" % "2.8.0"
   )
 
 publish / skip := true
