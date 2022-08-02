@@ -10,7 +10,7 @@ ThisBuild / scalaVersion := {
 }
 ThisBuild / organization := "io.github.nafg.simpleivr"
 
-def ScalaTest = "org.scalatest" %% "scalatest" % "3.2.12"
+def ScalaTest = "org.scalatest" %% "scalatest" % "3.2.13"
 
 ThisBuild / scalacOptions ++=
   ScalacOptions.all(scalaVersion.value)(
