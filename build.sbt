@@ -58,7 +58,7 @@ lazy val asterisk = project
   .settings(
     name := "simpleivr-asterisk",
     libraryDependencies += "org.asteriskjava" % "asterisk-java" % "3.37.0",
-    libraryDependencies += "org.scala-lang.modules" %% "scala-collection-compat" % "2.8.1"
+    libraryDependencies += "org.scala-lang.modules" %% "scala-collection-compat" % "2.9.0"
   )
 
 publish / skip := true
