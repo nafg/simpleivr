@@ -10,7 +10,7 @@ ThisBuild / scalaVersion := {
 }
 ThisBuild / organization := "io.github.nafg.simpleivr"
 
-def ScalaTest = "org.scalatest" %% "scalatest" % "3.2.16"
+def ScalaTest = "org.scalatest" %% "scalatest" % "3.2.17"
 
 ThisBuild / scalacOptions ++=
   ScalacOptions.all(scalaVersion.value)(
@@ -39,7 +39,7 @@ lazy val core = project
   .settings(
     name := "simpleivr-core",
     libraryDependencies ++= Seq(
-      "com.lihaoyi" %% "sourcecode" % "0.3.0",
+      "com.lihaoyi" %% "sourcecode" % "0.3.1",
       "org.typelevel" %% "cats-free" % "2.9.0",
       "org.typelevel" %% "cats-effect" % "3.5.1",
       ScalaTest % Test
