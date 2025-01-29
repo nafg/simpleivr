@@ -1,6 +1,6 @@
 import _root_.io.github.nafg.scalacoptions.{ScalacOptions, options}
 
-ThisBuild / crossScalaVersions := Seq("2.12.20", "2.13.15", "3.3.4")
+ThisBuild / crossScalaVersions := Seq("2.12.20", "2.13.15", "3.3.5")
 ThisBuild / scalaVersion := {
   val versions = (ThisBuild / crossScalaVersions).value
   if (sys.props.contains("idea.managed"))
