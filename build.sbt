@@ -9,6 +9,7 @@ ThisBuild / scalaVersion := {
     versions.last
 }
 ThisBuild / organization := "io.github.nafg.simpleivr"
+ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec.temurin("17"))
 
 def ScalaTest = "org.scalatest" %% "scalatest" % "3.2.20"
 
