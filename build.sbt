@@ -62,4 +62,4 @@ lazy val asterisk = project
     libraryDependencies += "org.scala-lang.modules" %% "scala-collection-compat" % "2.14.0"
   )
 
-publish / skip := true
+LocalRootProject / publish / skip := true
